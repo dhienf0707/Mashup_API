@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start":"supervisor -e js,ejs --watch .,./public,./views,./routes,./models index.js",
-    "stop":"nodemon --ext '.js|.ejs' -w . -w public -w views -w routes -w models index.js"
+    "start":"nodemon -L index.js"
   },
   "keywords": [],
   "author": "",
