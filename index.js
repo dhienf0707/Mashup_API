@@ -1,8 +1,24 @@
 const Joi = require('joi');
 const express = require('express');
+const http = require('http');
+const reload = require('reload');
+
+
 const app = express();
 
-app.use(express.json());
+
+app.set('view engine', 'pug');
+app.set('views', './views');
+
+
+app.use(express.json()); // parse json req
+app.use(express.urlencoded({ extended: true })); // url endcode key:value
+app.use(express.static('public')); // static files
+
+app.use(function(req, res, next) {
+    console.log('Logging...');
+    next();
+});
 
 const courses = [
     {id: 1, name: 'course1'},
@@ -11,7 +27,7 @@ const courses = [
 ];
 
 app.get('/', (req, res) => {
-    res.send('Hello World');
+    res.render('index', { title: "my title", message: "Hello there"});
 });
 
 app.get('/api/courses', (req, res) => {
@@ -62,9 +78,13 @@ app.delete('/api/courses/:id', (req, res) => {
 
 // PORT
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+
+// create sever
+const server = http.createServer(app);
+server.listen(port, () => {
     console.log(`Listening on port ${port}...`)
 });
+reload(app);
 
 function validateCourse(course) {
     const schema = {
