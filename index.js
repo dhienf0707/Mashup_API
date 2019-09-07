@@ -86,6 +86,7 @@ server.listen(port, () => {
 });
 reload(app);
 
+// function
 function validateCourse(course) {
     const schema = {
         name: Joi.string().min(3).required()
