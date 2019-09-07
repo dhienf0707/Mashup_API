@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  mashup_api:
+    build: .
+    volumes:
+      - ./:/src
+      - /src/node_modules
+    ports:
+      - "80:3000"
+    command: npm start
