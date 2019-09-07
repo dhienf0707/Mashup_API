@@ -2,7 +2,7 @@ const Joi = require('joi');
 const express = require('express');
 const http = require('http');
 const reload = require('reload');
-
+const home = require('./routes/home');
 
 const app = express();
 
@@ -26,9 +26,13 @@ const courses = [
     {id: 3, name: 'course3'}
 ];
 
-app.get('/', (req, res) => {
-    res.render('index', { title: "my title", message: "Hello there"});
-});
+app.use('/', home);
+
+// app.get('/', (req, res) => {
+//     res.render('index', { title: "my title", message: "sd"});
+// });
+
+app.get('/', home)
 
 app.get('/api/courses', (req, res) => {
     res.send(courses);
