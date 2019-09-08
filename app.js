@@ -1,80 +1,87 @@
+const morngan = require('morgan');
+const helmet = require('helmet');
 const Joi = require('joi');
+const reload = require('reload');
 const express = require('express');
 const http = require('http');
-const reload = require('reload');
-const index = require('./routes/index');
+const indexRouter = require('./routes/index');
+const search = require('./routes/search');
 
 const app = express();
 
 
+console.log(`NODE_EVN: ${process.env.NODE_EVN}`);
+console.log(`app: ${app.get('env')}`);
+
 app.set('view engine', 'pug');
 app.set('views', './views');
 
-
+app.use(helmet());
+app.use(morngan('tiny'));
 app.use(express.json()); // parse json req
 app.use(express.urlencoded({ extended: true })); // url endcode key:value
-app.use(express.static('public')); // static files
+app.use(express.static(__dirname + '/public')); // static files
 
-app.use(function(req, res, next) {
-    console.log('Logging...');
-    next();
-});
+// app.use(function(req, res, next) {
+//     console.log('Logging...');
+//     next();
+// });
 
-const courses = [
-    {id: 1, name: 'course1'},
-    {id: 2, name: 'course2'},
-    {id: 3, name: 'course3'}
-];
+app.use('/', indexRouter);
+app.use('/search', search)
+// const courses = [
+//     {id: 1, name: 'course1'},
+//     {id: 2, name: 'course2'},
+//     {id: 3, name: 'course3'}
+// ];
 
-app.use('/', index);
 
-app.get('/', index)
 
-app.get('/api/courses', (req, res) => {
-    res.send(courses);
-});
+// app.get('/api/courses', (req, res) => {
+//     res.send(courses);
+// });
 
-app.get('/api/courses/:id', (req, res) => {
-    const course = courses.find(course => course.id === parseInt(req.params.id))
-    if (!course) return res.status(404).send('The course with given id was not found');
-    res.send(course);
-});
+// app.get('/api/courses/:id', (req, res) => {
+//     const course = courses.find(course => course.id === parseInt(req.params.id))
+//     if (!course) return res.status(404).send('The course with given id was not found');
+//     res.send(course);
+// });
 
-app.post('/api/courses', (req, res) => {
-    const { error } = validateCourse(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+// app.post('/api/courses', (req, res) => {
+//     const { error } = validateCourse(req.body);
+//     if (error) return res.status(400).send(error.details[0].message);
 
-    const course = {
-        id: courses.length + 1,
-        name: req.body.name
-    };
+//     const course = {
+//         id: courses.length + 1,
+//         name: req.body.name
+//     };
 
-    courses.push(course);
-    res.send(course);
-});
+//     courses.push(course);
+//     res.send(course);
+// });
 
-app.put('/api/courses/:id', (req, res) => {
-    const course = courses.find(course => course.id === parseInt(req.params.id));
-    if (!course) return res.status(404).send('The course with given id was not found');
+// app.put('/api/courses/:id', (req, res) => {
+//     const course = courses.find(course => course.id === parseInt(req.params.id));
+//     if (!course) return res.status(404).send('The course with given id was not found');
    
-    const { error } = validateCourse(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+//     const { error } = validateCourse(req.body);
+//     if (error) return res.status(400).send(error.details[0].message);
 
-    course.name = req.body.name;
-    res.send(courses);
-});
+//     course.name = req.body.name;
+//     res.send(courses);
+// });
 
-app.delete('/api/courses/:id', (req, res) => {
-    const course = courses.find(c => c.id === parseInt(req.params.id));
-    if (!course) return res.status(404).send('The course with the given Id was not found');
+// app.delete('/api/courses/:id', (req, res) => {
+//     const course = courses.find(c => c.id === parseInt(req.params.id));
+//     if (!course) return res.status(404).send('The course with the given Id was not found');
 
-    // Delte
-    const index = courses.indexOf(course);
-    courses.splice(index, 1);
+//     // Delte
+//     const index = courses.indexOf(course);
+//     courses.splice(index, 1);
 
-    // response
-    res.send(course);
-})
+//     // response
+//     res.send(course);
+// })
 
 // PORT
 const port = process.env.PORT || 3000;

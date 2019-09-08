@@ -1,6 +1,10 @@
-html
-    head
-        title=title
-    body
-        h1=message
-    script(src='/reload/reload.js')
+extends layout
+
+block content
+    .row.text-left.h-100
+        .col-sm-2.border-right
+            .h2 Product mapping
+            .p message
+        .col-sm-10(id = "map")
+block map
+    script(src="/APIs/indexMaps.js")
