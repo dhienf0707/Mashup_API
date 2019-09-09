@@ -2,24 +2,23 @@ extends layout
 
 block map
     script.
-        let map, infoWindow;
-        function initMap(currentLocation, lat, lng) {
+        var map, infoWindow;
+        function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
-                center: {lat: 42.4778, lng: -70.9495},
-                zoom: 10
+                center: {lat: -34.397, lng: 150.644},
+                zoom: 6
             });
             infoWindow = new google.maps.InfoWindow;
+
             // Try HTML5 geolocation.
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
-                var pos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-
-                infoWindow.setPosition(pos);
-                infoWindow.setContent("Current Location")
-                infoWindow.open(map);
+                    var pos = {
+                        lat: position.cinfoWindow.setPosition(pos);
+                infoWindow.setContent('Location found.');
+                infoWindow.open(map);oords.latitude,
+                        lng: position.coords.longitude
+                    }
                 map.setCenter(pos);
                 }, function() {
                 handleLocationError(true, infoWindow, map.getCenter());
@@ -28,19 +27,54 @@ block map
                 // Browser doesn't support Geolocation
                 handleLocationError(false, infoWindow, map.getCenter());
             }
-            markers = !{JSON.stringify(locations)};
-            // iterate through json location and mark it on the map
-            for(let i = 0; i < markers.length; i++) {
-                addMarker(markers[i]);
-            }
-
+            map.setCenter({lat: 42.4778, lng: -70.9495});
         }
+        //- let map, infoWindow;
+        //- function initMap() {
+        //-     map = new google.maps.Map(document.getElementById('map'), {
+        //-         center: {lat: 42.4778, lng: -70.9495},
+        //-         zoom: 7
+        //-     });
 
-        function addMarker(props) {
-            let marker = new google.maps.Marker({
-                position: props.coords,
-                map: map,
-            });
+        //-     infoWindow = new google.maps.InfoWindow;
+        //-     let currentPosition;
+        //-     navigator.geolocation.getCurrentPosition(function(position) {
+        //-         currentPosition = {
+        //-             lat: position.coords.latitude,
+        //-             lng: position.coords.longtitude
+        //-         };
+        //-         map.setCenter(currentPosition);
+        //-     });
+            
+
+        //-     //- // Try HTML5 geolocation.
+        //-     //- if (navigator.geolocation) {
+        //-     //-     navigator.geolocation.getCurrentPosition(function(position) {
+        //-     //-        let center = {
+        //-     //-                 lat: position.coords.latitude,
+        //-     //-                 lng: position.coords.longitude
+        //-     //-         };
+        //-     //-         map.setCenter(center);
+        //-     //-     }, function() {
+        //-     //-         handleLocationError(true, infoWindow, map.getCenter());
+        //-     //-     });
+        //-     //- } else {
+        //-     //-     // Browser doesn't support Geolocation
+        //-     //-     handleLocationError(false, infoWindow, map.getCenter());
+        //-     //- }
+        //-     //- map.setCenter({lat: 42.4778, lng: -70.9495});
+            
+        //-     //- let locations = !{JSON.stringify(locations)};
+        //-     //- addMarkers(locations);
+        //- }
+
+        function addMarkers(locations) {
+            for (let i = 0; i < locations.length; i++) {
+                let marker = new google.maps.Marker({
+                    position: locations[i].coords,
+                    map: map,
+                });
+            }
         }
 
         function handleLocationError(browserHasGeolocation, infoWindow, pos) {
