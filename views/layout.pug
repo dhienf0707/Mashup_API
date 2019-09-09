@@ -10,7 +10,16 @@ html
         )
     body
         .container-fluid
-            block content
+            .row.h-25
+                .col-sm-12
+                    .h2.text-center Welcome to product mapping
+                    .h4.left-center Please query your search:
+
+            .row.h-75
+                .col-sm-4.border
+                    .h2 result
+                    .p message
+                .col-sm-8(id = "map")
         script(
             src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
