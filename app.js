@@ -95,7 +95,7 @@ const port = process.env.PORT || 3000;
 
 // create sever
 const httpServer = http.createServer(app);
-httpServer.listen(80);
+httpServer.listen(3000);
 
 const httpsServer = https.createServer(credentials, app);
 httpsServer.listen(443);
