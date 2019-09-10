@@ -10,8 +10,8 @@ const indexRouter = require('./routes/index');
 const search = require('./routes/search');
 
 // HTTPS server
-const privateKey = fs.readFileSync('./sslcert/account-key.txt', 'utf8');
-const certificate = fs.readFileSync('./sslcert/domain-csr.txt', 'utf8');
+const privateKey = fs.readFileSync('./sslcert/domain-key.txt', 'utf8');
+const certificate = fs.readFileSync('./sslcert/domain-crt.txt', 'utf8');
 const credentials = {key: privateKey, cert: certificate};
 
 const app = express();
@@ -95,10 +95,10 @@ const port = process.env.PORT || 3000;
 
 // create sever
 const httpServer = http.createServer(app);
-httpServer.listen(port);
+httpServer.listen(80);
 
-// const httpsServer = https.createServer(credentials, app);
-// httpsServer.listen(80);
+const httpsServer = https.createServer(credentials, app);
+httpsServer.listen(443);
 reload(app);
 
 // function
