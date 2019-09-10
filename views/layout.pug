@@ -1,25 +1,73 @@
 html
+    -var googleAPI = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAsMtx2cG26hGNhLqnFuajZHvsSlfI_dac&callback=googleMap.init"
     head
         meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
         title="Product mapping"
+        script(src="https://kit.fontawesome.com/4bf29efb44.js")
         link(
             rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
             integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
             crossorigin="anonymous"
         )
+                
     body
-        .container-fluid
-            .row.h-25
+        header
+            .bg-dark.collapse(id="navbarHeader", style)
+                .container
+                    .row
+                        .col-sm-8.col-md-7.py-4
+                            h4.text-white About
+                            p.text-muted
+                                |Product mapping is a web based app for browsing product in eBay. 
+                                |Not only does it help buyers to find products within their 
+                                |area but it also help sellers to know the popularity of their product 
+                                |with the help of Google Map.
+                        .col-sm-4.offset-md-1.py-4
+                            h4.text-white Contact
+                            ul.list-unstyled
+                                //- to be done
+            .navbar.navbar-dark.bg-dark.box-shadow
+                .container.d-flex.justify-content-between
+                    a(href="/").navbar-brand.d-flex.align-items-center
+                        i.fas.fa-igloo
+                        |
+                        strong &nbsp;Home
+                    button.navbar-toggler(
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#navbarHeader"
+                        aria-controls="navbarHeader"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation"
+                    )
+                        span.navbar-toggler-icon
+        .container
+            .row
                 .col-sm-12
-                    .h2.text-center Welcome to product mapping
-                    .h4.left-center Please query your search:
-
-            .row.h-75
-                .col-sm-4.border
-                    .h2 result
-                    .p message
-                .col-sm-8(id = "map")
+                    //- h2.text-left Welcome to product mapping
+                    .row
+                        .col
+                            h2.text-left Welcome to Product mapping
+                        .col.align-self-center
+                            img.text-right.rounded-circle.float-right.my-auto(src="/icon/icon.ico" style="height: 30")
+                    form.card.card-sm
+                        .card-body.row.no-glutters.align-items.center
+                            .col-auto(style="font-size: 0.5rem")
+                                i.fab.fa-searchengin.fa-5x
+                            .col
+                                input.form-control.form-control-lg.form-control-borderness(type="seach", placeholder="Search for your products")
+                            .col-auto
+                                button.btn.btn-lg.btn-success(type="submit") Seach
+                        .card-body.row.no-glutters.align-items.center
+                            .col-sm-12 Category
+                        .card-body.row.no-glutters.align-items.center
+                            .col-sm-12 Location                        
+            .row
+                .col-sm-4.shadow-lg.p-3.mb-5.bg-white.rounded
+                    h5 result
+                    
+                .col-sm-8.z-depth-1-half.map-container.shadow-lg.p-3.mb-5.bg-white.rounded(id = "map" style="height: 410px")
         script(
             src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -36,6 +84,7 @@ html
             crossorigin="anonymous"
         )
         script(src="reload/reload.js")
-        block map
+        script(src="js/googleMaps.js")
         doctype html
-        script(async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAsMtx2cG26hGNhLqnFuajZHvsSlfI_dac&callback=initMap")
+        script(aysnc defer src=googleAPI)
+        block script

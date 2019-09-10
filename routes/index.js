@@ -13,7 +13,7 @@ locations = [
     }
 ];
 router.get('/', (req, res) => {
-    res.render('index', { markers: locations });
+    res.render('index')
     
     // document.addEventListener("DOMContentLoaded", function() {
     //     let mapElement = document.getElementById('map');
