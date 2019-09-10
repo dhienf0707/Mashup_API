@@ -13,6 +13,7 @@ html
                 
     body
         header
+            doctype html
             .bg-dark.collapse(id="navbarHeader", style)
                 .container
                     .row
@@ -50,7 +51,7 @@ html
                         .col
                             h2.text-left Welcome to Product mapping
                         .col.align-self-center
-                            img.text-right.rounded-circle.float-right.my-auto(src="/icon/icon.ico" style="height: 30")
+                            img.rounded-circle.float-right(src="/icon/icon.ico" style="height: 30")
                     form.card.card-sm
                         .card-body.row.no-glutters.align-items.center
                             .col-auto(style="font-size: 0.5rem")
@@ -64,10 +65,10 @@ html
                         .card-body.row.no-glutters.align-items.center
                             .col-sm-12 Location                        
             .row
-                .col-sm-4.shadow-lg.p-3.mb-5.bg-white.rounded
+                .col-sm-4
                     h5 result
                     
-                .col-sm-8.z-depth-1-half.map-container.shadow-lg.p-3.mb-5.bg-white.rounded(id = "map" style="height: 410px")
+                .col-sm-8.z-depth-1-half.map-container.shadow-lg.p-3.mb-5.bg-white.rounded(id = "map" style="height: 500")
         script(
             src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

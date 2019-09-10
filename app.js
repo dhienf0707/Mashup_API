@@ -4,8 +4,15 @@ const Joi = require('joi');
 const reload = require('reload');
 const express = require('express');
 const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const indexRouter = require('./routes/index');
 const search = require('./routes/search');
+
+// HTTPS server
+const privateKey = fs.readFileSync('./sslcert/account-key.txt', 'utf8');
+const certificate = fs.readFileSync('./sslcert/domain-csr.txt', 'utf8');
+const credentials = {key: privateKey, cert: certificate};
 
 const app = express();
 
@@ -87,10 +94,11 @@ app.use('/search', search)
 const port = process.env.PORT || 3000;
 
 // create sever
-const server = http.createServer(app);
-server.listen(port, () => {
-    console.log(`Listening on port ${port}...`)
-});
+const httpServer = http.createServer(app);
+httpServer.listen(port);
+
+// const httpsServer = https.createServer(credentials, app);
+// httpsServer.listen(80);
 reload(app);
 
 // function
