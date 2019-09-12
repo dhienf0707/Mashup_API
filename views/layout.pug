@@ -45,30 +45,32 @@ html
                         span.navbar-toggler-icon
         .container
             .row
-                .col-sm-12
-                    //- h2.text-left Welcome to product mapping
-                    .row
-                        .col
-                            h2.text-left Welcome to Product mapping
-                        .col.align-self-center
-                            img.rounded-circle.float-right(src="/icon/icon.ico" style="height: 30")
-                    form.card.card-sm
-                        .card-body.row.no-glutters.align-items.center
-                            .col-auto(style="font-size: 0.5rem")
-                                i.fab.fa-searchengin.fa-5x
-                            .col
-                                input.form-control.form-control-lg.form-control-borderness(type="seach", placeholder="Search for your products")
-                            .col-auto
-                                button.btn.btn-lg.btn-success(type="submit") Seach
-                        .card-body.row.no-glutters.align-items.center
-                            .col-sm-12 Category
-                        .card-body.row.no-glutters.align-items.center
-                            .col-sm-12 Location                        
+                .col
+                    h2.text-left Welcome to Product mapping
+                .col.align-self-center
+                    img.rounded-circle.float-right(src="/icon/icon.ico" style="height: 30")
+            form.card.card-sm(method='POST' action='/search/submit')
+                .card-body.row.no-glutters.align-items.center
+                    .col-sm-1(style="font-size: 0.5rem")
+                        i.fab.fa-searchengin.fa-5x.float-right
+                    .col
+                        input.form-control.form-control-lg.form-control-borderness(type="seach" name="query" placeholder="Search for your products")
+                    .col-auto
+                        button.btn.btn-lg.btn-success(type="submit") Search
+                .card-body.row.no-glutters.align-items.center
+                    .col-sm-6.offset-sm-1
+                        |Limit <br/>
+                        input.form-control.form-control-lg.form-control-borderness(type="search" name="limit")
+
+                .card-body.row.no-glutters.align-items.center
+                    .col-sm-12 Location                        
             .row
                 .col-sm-4
                     h5 result
+                    ul.list-group(style="max-height: 500px;overflow: auto;")
+                        block result
                     
-                .col-sm-8.z-depth-1-half.map-container.shadow-lg.p-3.mb-5.bg-white.rounded(id = "map" style="height: 500")
+                .col-sm-8.z-depth-1-half.map-container.shadow-lg.p-3.mb-5.bg-white.rounded(id = "map" style="height: 500px")
         script(
             src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -84,8 +86,8 @@ html
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"
         )
-        script(src="reload/reload.js")
-        script(src="js/googleMaps.js")
+        script(src="/reload/reload.js")
+        script(src="/js/googleMaps.js")
         doctype html
         script(aysnc defer src=googleAPI)
         block script
