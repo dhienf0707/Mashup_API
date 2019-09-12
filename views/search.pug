@@ -1,0 +1,5 @@
+extends layout
+block result
+    -var results = items
+    -for (var i = 0; i < results.length; i++)
+        li.list-group-item #{results[i].title}
