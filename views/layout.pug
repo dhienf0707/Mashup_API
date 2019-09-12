@@ -1,16 +1,12 @@
 html
     -var googleAPI = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAsMtx2cG26hGNhLqnFuajZHvsSlfI_dac&callback=googleMap.init"
     head
+        meta(charset="utf-8")
         meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
+        meta(http-equiv="x-ua-compatible" content="ie=edge")
+        link(href="/bootstrap/css/bootstrap.css" rel="stylesheet")
+        link(href="/bootstrap/css/mdb.css" rel="stylesheet")
         title="Product mapping"
-        script(src="https://kit.fontawesome.com/4bf29efb44.js")
-        link(
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-            crossorigin="anonymous"
-        )
-                
     body
         header
             doctype html
@@ -44,38 +40,53 @@ html
                     )
                         span.navbar-toggler-icon
         .container
-            .row
-                .col
-                    h2.text-left Welcome to Product mapping
-                .col.align-self-center
-                    img.rounded-circle.float-right(src="/icon/icon.ico" style="height: 30")
-            form.card.card-sm(method='POST' action='/search/submit')
-                .card-body.row.no-glutters.align-items.center
-                    .col-sm-1(style="font-size: 0.5rem")
-                        i.fab.fa-searchengin.fa-5x.float-right
-                    .col
-                        input.form-control.form-control-lg.form-control-borderness(type="seach" name="query" placeholder="Search for your products")
-                    .col-auto
-                        button.btn.btn-lg.btn-success(type="submit") Search
-                .card-body.row.no-glutters.align-items.center
-                    .col-sm-6.offset-sm-1
-                        |Limit <br/>
-                        input.form-control.form-control-lg.form-control-borderness(type="search" name="limit")
+            h2.text-left Welcome to Product mapping
+                img.rounded-circle.float-right(src="/icon/icon.ico" style="height: 30")
+            .card
+                //- Search form
+                .card-body.px-lg-5.pt-0
+                    form(class="text-center" style="color: #757575;")
+                        .form-row
+                            //- query
+                            .col
+                                .md-form
+                                    input.form-control(type="text" id="queryTxt")
+                                    label Keyword
+                            //- limits
+                            .col
+                                .md-form
+                                    input.form-control(type="text" id="limitTxt")
+                                    label Limit
 
-                .card-body.row.no-glutters.align-items.center
-                    .col-sm-12 Location                        
+                        .md-form
+                            select(class="mdb-select md-form" searchable="Search here.." id="country")
+                                doctype html
+                                option(value="" disabled selected) Choose your country
+                                option(value="AU" id="AU" selected) Australia
+                                option(value="CA" id="CA") Canada
+                                option(value="DE" id="DE") Germany
+                                option(value="ES" id="ES") Spain
+                                option(value="FR" id="FR") France
+                                option(value="GB" id="GB") Great Britain
+                                option(value="HK" id="HK") Hong Kong
+                                option(value="IT" id="IT") Italy
+                                option(value="US" id="US") USA
+                        button(class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" id="searchBtn") Search
             .row
-                .col-sm-4
-                    h5 result
-                    ul.list-group(style="max-height: 500px;overflow: auto;")
-                        block result
-                    
-                .col-sm-8.z-depth-1-half.map-container.shadow-lg.p-3.mb-5.bg-white.rounded(id = "map" style="height: 500px")
-        script(
-            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-            crossorigin="anonymous"
-        )
+                .col-md-6.mb-4
+                    .card.card-cascade.narrower
+                        .view.view-cascade.gradient-card-header.blue-gradient
+                            h5.mb-0 Results
+                    .card-body.card-body-cascade.text-center
+                        .list-group(style="max-height: 500px;overflow: auto;" id="resultLst")
+                            block result
+                .col-md-6.mb-4
+                    .card.card-cascade.narrower
+                        .view.view-cascade.gradient-card-header.blue-gradient
+                            h5.mb-0 Google Map
+                    .card-body.card-body-cascade.text-center
+                        div(class="z-depth-1-half map-container-5" style="height: 500px" id="map")
+
         script(
             src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
             integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
@@ -86,8 +97,14 @@ html
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"
         )
+        script(type="text/javascript" src="/bootstrap/js/jquery-3.4.1.js")
+        script(type="text/javascript" src="/bootstrap/js/popper.min.js")
+        script(type="text/javascript" src="/bootstrap/js/bootstrap.js")
+        script(type="text/javascript" src="/bootstrap/js/mdb.js")
+        script(src="https://kit.fontawesome.com/4bf29efb44.js")
         script(src="/reload/reload.js")
         script(src="/js/googleMaps.js")
+        script(src="/js/dom.js")
         doctype html
         script(aysnc defer src=googleAPI)
         block script

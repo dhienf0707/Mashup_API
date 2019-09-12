@@ -28,7 +28,6 @@ app.use(morngan('tiny'));
 app.use(express.json()); // parse json req
 app.use(express.urlencoded({ extended: true })); // url endcode key:value
 app.use(express.static(__dirname + '/public')); // static files
-
 // app.use(function(req, res, next) {
 //     console.log('Logging...');
 //     next();
@@ -95,7 +94,7 @@ const port = process.env.PORT || 3000;
 
 // create sever
 const httpServer = http.createServer(app);
-httpServer.listen(8080);
+httpServer.listen(port);
 
 const httpsServer = https.createServer(credentials, app);
 httpsServer.listen(8443);

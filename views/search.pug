@@ -2,4 +2,7 @@ extends layout
 block result
     -var results = items
     -for (var i = 0; i < results.length; i++)
-        li.list-group-item #{results[i].title}
+        a(href= `${results[i].itemWebUrl}` target="_blank").list-group-item.list-group-item-action
+            .d-flex.w-100.justify-content-between
+                p #{results[i].title}
+                small= `${results[i].price.value}  ${results[i].price.currency}`

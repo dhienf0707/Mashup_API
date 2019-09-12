@@ -21,7 +21,7 @@ let eBayAPI = (function () {
     }
 
     
-    function getItems(url) {
+    function getItems(url, country = 'AU') {
         return axios.post(eBayTokenAPI.url, qs.stringify(eBayTokenAPI.requestBody), {
                 headers: eBayTokenAPI.requestHeaders
             })
@@ -29,9 +29,8 @@ let eBayAPI = (function () {
                 const eBayGetAPI = {
                     url: url,
                     requestHeaders: {
-                        'Content-Language': 'en-au',
                         'Content-Type': 'application/json',
-                        'X-EBAY-C-MARKETPLACE-ID': 'EBAY_AU',
+                        'X-EBAY-C-MARKETPLACE-ID': `EBAY_${country}`,
                         'Authorization': `Bearer ${tokenRes.data.access_token}`
                     }
                 }
