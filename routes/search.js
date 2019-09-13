@@ -5,7 +5,8 @@ const eBayAPI = require('./eBayAPI');
 router.get('/full', (req, res) => {
     const query = req.query;
     const country = query.country;
-    const url = createUrl(query['query'], query['limit']);
+    const url = createUrl(query['query'], query['limit'], query['price']);
+    console.log(url);
     eBayAPI.getItems(url, country)
         .then((items) => {
             res.render('search', {items});
@@ -23,7 +24,8 @@ router.get('/full', (req, res) => {
 router.get('/submit', (req, res) => {
     const query = req.query;
     const country = query.country;
-    const url = createUrl(query['query'], query['limit']);
+    const url = createUrl(query['query'], query['limit'], query['price']);
+    // console.log(url);
     eBayAPI.getItems(url, country)
         .then((items) => {
             // res.render('search', {items})
@@ -32,7 +34,7 @@ router.get('/submit', (req, res) => {
         .catch(err => console.log(err))
 })
 
-function createUrl(query, limit) {
-    return `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=${limit}`;
+function createUrl(query, limit, priceRange) {
+    return `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=${limit}&filter=${priceRange}`;
 }
 module.exports = router;

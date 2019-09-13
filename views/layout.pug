@@ -6,6 +6,9 @@ html
         meta(http-equiv="x-ua-compatible" content="ie=edge")
         link(href="/bootstrap/css/bootstrap.css" rel="stylesheet")
         link(href="/bootstrap/css/mdb.css" rel="stylesheet")
+        link(href='http://fonts.googleapis.com/css?family=Oswald:400,300,700|Open+Sans+Condensed:700,300,300italic|Open+Sans:400,300italic,400italic,600,600italic,700,700italic,800,800italic|PT+Sans:400,400italic,700,700italic' rel='stylesheet' type='text/css')
+        link(href='http://fonts.googleapis.com/css?family=Rock+Salt' rel='stylesheet' type='text/css')
+        link(href="/css/InfoWindow.css" rel="stylesheet" type="text/css")
         title="Product mapping"
     body
         header
@@ -57,7 +60,20 @@ html
                                 .md-form
                                     input.form-control(type="text" id="limitTxt")
                                     label Limit
+                        //- price
+                        .form-row
+                            //- min
+                            .col
+                                .md-form
+                                    input.form-control(type="text" id="minPrice")
+                                    label min price
+                            //- max
+                            .col
+                                .md-form
+                                    input.form-control(type="text" id="maxPrice")
+                                    label max price
 
+                        //- country
                         .md-form
                             select(class="mdb-select md-form" searchable="Search here.." id="country")
                                 doctype html
@@ -84,19 +100,8 @@ html
                     .card.card-cascade.narrower
                         .view.view-cascade.gradient-card-header.blue-gradient
                             h5.mb-0 Google Map
-                    .card-body.card-body-cascade.text-center
+                    .card-body.card-body-cascade
                         div(class="z-depth-1-half map-container-5" style="height: 500px" id="map")
-
-        script(
-            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-            crossorigin="anonymous"
-        )
-        script(
-            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-            crossorigin="anonymous"
-        )
         script(type="text/javascript" src="/bootstrap/js/jquery-3.4.1.js")
         script(type="text/javascript" src="/bootstrap/js/popper.min.js")
         script(type="text/javascript" src="/bootstrap/js/bootstrap.js")
@@ -104,7 +109,7 @@ html
         script(src="https://kit.fontawesome.com/4bf29efb44.js")
         script(src="/reload/reload.js")
         script(src="/js/googleMaps.js")
-        script(src="/js/dom.js")
         doctype html
         script(aysnc defer src=googleAPI)
+        script(aysnc defer src="/js/dom.js")
         block script
