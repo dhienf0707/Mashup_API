@@ -5,7 +5,7 @@ var googleMap = (function(){
         geocoder,
         markers = [],
         bounds,
-        delay = 1,
+        delay = 0,
         nextItem = 0,
         items;
 
@@ -21,8 +21,8 @@ var googleMap = (function(){
     function codeAddress(item, next) {
         geocoder.geocode({
             componentRestrictions: {
-                country: `${item.countryCode}`,
-                postalCode: `${item.postalCode}`
+                country: `${item.itemLocation.country}`,
+                postalCode: `${item.itemLocation.postalCode}`
           }
         }, function(results, status) {
             if (status == 'OK') {
@@ -94,12 +94,12 @@ var googleMap = (function(){
     function addMarker(item, location) {
         var content = 
         `<div id="iw-container">
-            <a href= "${item.url}" target="_blank">
+            <a href= "${item.itemWebUrl}" target="_blank">
                 <div class="iw-title">${item.title}</div>
             </a>
             <div class="iw-content">
-                <div class="iw-subTitle">Price: ${item.price}</div>
-                <img src="${item.image}" alt="${item.title}" height="115" width="82">
+                <div class="iw-subTitle">Price: ${item.price.value} ${item.price.currency}</div>
+                <img src="${item.image.imageUrl}" alt="${item.title}" height="115" width="82">
                 <p>Condition: ${item.condition}</p>
                 <div class="iw-subTitle">Seller</div>
                 <p>Name: ${item.seller.username}<br>Feedback percentage: ${item.seller.feedbackPercentage}<br>Feedback score: ${item.seller.feedbackScore}<br>

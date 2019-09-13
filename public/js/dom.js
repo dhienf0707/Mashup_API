@@ -8,22 +8,6 @@ $( document ).ready(function() {
         ajaxGet();
     });
 
-    // get key by value function
-    function getKeyByValue(object, value) {
-        return Object.keys(object).find(key => object[key] === value);
-    }
-
-    const currency = {
-        'AUD': 'AU',
-        'CAD': 'CA',
-        'EUR': 'DE',
-        'EUR': 'ES',
-        'EUR': 'FR',
-        'GBP': 'GB',
-        'HKD': 'HK',
-        'EUR': 'IT',
-        'USD': 'US'
-    }
     // get result and update layout
     function ajaxGet() {
         const query = $("#queryTxt").val();
@@ -31,11 +15,10 @@ $( document ).ready(function() {
         const country = $('#country').val();
         const minPrice = $('#minPrice').val() === undefined ? '' : $('#minPrice').val();
         const maxPrice = $('#maxPrice').val() === undefined ? '' : $('#maxPrice').val();
-        const priceCurrency = getKeyByValue(currency, country);
-        var items = [];
+        if (parseInt(minPrice) > parseInt(maxPrice)) return alert('Invalid price range');
         $.ajax({
             type: "GET",
-            url: `/search/submit?country=${country}&query=${query}&limit=${limit}&price=price:[${minPrice}..${maxPrice}],priceCurrency:${priceCurrency}`,
+            url: `/search/submit?country=${country}&query=${query}&limit=${limit}&price=price:[${minPrice}..${maxPrice}],priceCurrency:AUD`,
             success: function(result) {
                 $('#resultLst').empty();
                 $.each(result, function(i, item) {
@@ -48,19 +31,8 @@ $( document ).ready(function() {
                             </div>
                         </a>`
                     );
-                    // store items
-                    items.push({
-                        title: item.title,
-                        price: `${item.price.value} ${item.price.currency}`,
-                        condition: item.condition,
-                        image: item.image.imageUrl,
-                        url: item.itemWebUrl,
-                        seller: item.seller,
-                        countryCode: item.itemLocation.country,
-                        postalCode: item.itemLocation.postalCode
-                    });
                 })
-                googleMap.setItems(items);
+                googleMap.setItems(result);
                 googleMap.productMap();
             },
             error: function(err) {

@@ -6,7 +6,6 @@ router.get('/full', (req, res) => {
     const query = req.query;
     const country = query.country;
     const url = createUrl(query['query'], query['limit'], query['price']);
-    console.log(url);
     eBayAPI.getItems(url, country)
         .then((items) => {
             res.render('search', {items});
@@ -15,17 +14,10 @@ router.get('/full', (req, res) => {
         .catch(err => console.log(err))
 })
 
-// router.post('/submit', (req, res) => {
-//     const query = req.body.query;
-//     const limit = req.body.limit;
-//     res.redirect(`full?query=${query}&limit=${limit}`);
-// })
-
 router.get('/submit', (req, res) => {
     const query = req.query;
     const country = query.country;
     const url = createUrl(query['query'], query['limit'], query['price']);
-    // console.log(url);
     eBayAPI.getItems(url, country)
         .then((items) => {
             // res.render('search', {items})
