@@ -84,12 +84,6 @@ var googleMap = (function(){
             handleLocationError(false, infoWindow, map.getCenter());
         }
     }
-    
-    function addMarkers(locations) {
-        for (var i = 0; i < locations.length; i++) {
-           addMarkers(location);
-        }
-    }
 
     function addMarker(item, location) {
         var content = 
