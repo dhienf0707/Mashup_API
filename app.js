@@ -8,6 +8,7 @@ const https = require('https');
 const fs = require('fs');
 const indexRouter = require('./routes/index');
 const search = require('./routes/search');
+const categories = require('./routes/categories');
 
 // HTTPS server
 const privateKey = fs.readFileSync('./sslcert/domain-key.txt', 'utf8');
@@ -34,7 +35,8 @@ app.use(express.static(__dirname + '/public')); // static files
 // });
 
 app.use('/', indexRouter);
-app.use('/search', search)
+app.use('/search', search);
+app.use('/categories', categories);
 // const courses = [
 //     {id: 1, name: 'course1'},
 //     {id: 2, name: 'course2'},

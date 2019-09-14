@@ -73,6 +73,11 @@ html
                                     input.form-control(type="text" id="maxPrice")
                                     label max price (AU $)
 
+                        //- Category
+                        .md-form
+                            select(class="mdb-select md-form" searchable="Search here.." id="categories")
+                                doctype html
+                                option(value="" disabled selected) Choose your category
                         //- country
                         .md-form
                             select(class="mdb-select md-form" searchable="Search here.." id="country")
@@ -109,7 +114,7 @@ html
         script(src="https://kit.fontawesome.com/4bf29efb44.js")
         script(src="/reload/reload.js")
         script(src="/js/googleMaps.js")
+        script(src="/js/dom.js")
         doctype html
         script(aysnc defer src=googleAPI)
-        script(aysnc defer src="/js/dom.js")
         block script

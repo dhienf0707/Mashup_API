@@ -186,6 +186,6 @@ var googleMap = (function(){
         setCurrentLocation: setCurrentLocation,
         productMap: productMap,
         setItems: setItems,
-        clearMarkers: clearMarkers,
+        clearMarkers: clearMarkers
 	};
 })();
