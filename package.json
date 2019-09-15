@@ -4,7 +4,7 @@
   "description": "eBay and Google map API mapping",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon -L app.js -e js,pug"
   },
   "keywords": [],
   "author": "Duc Hien Nguyen (Jerry)",
@@ -20,9 +20,6 @@
     "pug": "^2.0.4",
     "querystring": "^0.2.0",
     "reload": "^3.0.1"
-  },
-  "devDependencies": {
-    "jshint": "^2.10.2"
   },
   "repository": {
     "type": "git",
