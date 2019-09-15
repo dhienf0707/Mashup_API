@@ -110,6 +110,7 @@ var googleMap = (function(){
             infoWindow.close();
         });
 
+<<<<<<< HEAD
         // markers.push(marker);
         // bounds.extend(marker.position);
         return marker;
@@ -163,6 +164,10 @@ var googleMap = (function(){
             deferred.reject('Your browser doesn\'t support geolocation.')
         }
         return deferred.promise();
+=======
+        markers.push(marker);
+        bounds.extend(marker.position);
+>>>>>>> add gps checkbox (no function yet)
     }
 
     const getItemsGPS = async (country, political, items) => {
