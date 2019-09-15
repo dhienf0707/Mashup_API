@@ -8,8 +8,9 @@ $( document ).ready(function() {
     function updateCategories() {
         const country = $('#country').val();
         $.ajax({
-            type: "GET",
-            url: `/categories/submit?country=${country}`,
+            type: "POST",
+            url: `/categories/submit`,
+            data: {country: country},
             success: function(result) {
                 $('#categories').empty();
                 $('#categories').append(
@@ -32,11 +33,11 @@ $( document ).ready(function() {
     // Search event handler
     $("#searchBtn").click((e) => {
         e.preventDefault();
-        ajaxGet();
+        updateResults();
     });
 
     // get result and update layout
-    function ajaxGet() {
+    function updateResults() {
         if ($("#queryTxt").val() === '') return alert('Keyword is required');
         if (parseInt($('#minPrice').val()) > parseInt($('#maxPrice').val())) return alert('Invalid price range');
         const data = {

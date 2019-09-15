@@ -6,7 +6,7 @@ router.get('/full', (req, res) => {
     const query = req.query;
     const url = createUrl(query);
     console.log(url);
-    eBayAPI.getItems(url, query['country'])
+    eBayAPI.getItems(url, query.country)
         .then((items) => {
             res.render('search', {items: items});
             // res.send(items);
@@ -32,4 +32,5 @@ function createUrl(query) {
     });
     return `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query.query}&limit=${query.limit}&filter=price:[${query.minPrice}..${query.maxPrice}],priceCurrency:AUD&category_ids=${query.category_id}`;
 }
+
 module.exports = router;
