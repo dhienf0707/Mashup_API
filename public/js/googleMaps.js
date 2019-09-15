@@ -63,7 +63,6 @@ var googleMap = (function(){
             nextItem++;
         } else {
             map.fitBounds(bounds);
-            console.log(markers.length);
         }
     };
 

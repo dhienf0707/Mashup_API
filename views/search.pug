@@ -1,14 +1,13 @@
 extends index
 block result
-    -var results = items
-    -for (var i = 0; i < results.length; i++)
-        a(href= `${results[i].itemWebUrl}` target="_blank").list-group-item.list-group-item-action
+    each item in items
+        a(href= `${item.itemWebUrl}` target="_blank").list-group-item.list-group-item-action
             .d-flex.w-100.justify-content-between
-                p #{results[i].title}
-                small= `${results[i].price.value}  ${results[i].price.currency}`
+                p= item.title
+                small= `${item.price.value}  ${item.price.currency}`
 block script
     script.
         $( document ).ready(function() {
-            googleMap.setItems(!{JSON.stringify(results)});
+            googleMap.setItems(!{JSON.stringify(items)});
             googleMap.productMap();
         });

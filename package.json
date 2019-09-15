@@ -1,33 +1,35 @@
 {
-  "name": "example",
+  "name": "product_mapping",
   "version": "1.0.0",
-  "description": "",
+  "description": "eBay and Google map API mapping",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -L app.js -e js,pug"
+    "start": "node app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Duc Hien Nguyen (Jerry)",
   "license": "ISC",
   "dependencies": {
-    "ajax": "0.0.4",
     "axios": "^0.19.0",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
     "helmet": "^3.21.0",
     "http": "0.0.0",
     "https": "^1.0.0",
-    "joi": "^14.3.1",
-    "jquery": "^3.4.1",
-    "jsdom": "^15.1.1",
-    "mongoose": "^5.6.12",
     "morgan": "^1.9.1",
     "pug": "^2.0.4",
     "querystring": "^0.2.0",
-    "reload": "^3.0.1",
-    "underscore": "^1.9.1"
+    "reload": "^3.0.1"
   },
   "devDependencies": {
     "jshint": "^2.10.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhienf0707/Mashup_API.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dhienf0707/Mashup_API/issues"
+  },
+  "homepage": "https://github.com/dhienf0707/Mashup_API#readme"
 }
