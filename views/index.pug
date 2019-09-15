@@ -13,8 +13,12 @@ block header
                         |with the help of Google Map.
                 .col-sm-4.offset-md-1.py-4
                     h4.text-white Contact
+                    //- contacts
                     ul.list-unstyled
-                        //- to be done
+                        li
+                            a.text-white(href="https://www.facebook.com/jerry.nguyen.359") Facebook
+                        li
+                            a.text-white(href="mailto:n10327622@qut.edu.au") Email
     .navbar.navbar-dark.bg-dark.box-shadow
         .container.d-flex.justify-content-between
             a(href="/").navbar-brand.d-flex.align-items-center
@@ -86,6 +90,7 @@ block content
             .col-md-6.mb-4
                 .card.card-cascade.narrower
                     .view.view-cascade.gradient-card-header.blue-gradient
+                        //- results
                         h5.mb-0 Results
                 .card-body.card-body-cascade.text-center
                     .list-group(style="max-height: 500px;overflow: auto;" id="resultLst")
