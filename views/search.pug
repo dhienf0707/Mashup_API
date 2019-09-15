@@ -1,4 +1,4 @@
-extends layout
+extends index
 block result
     -var results = items
     -for (var i = 0; i < results.length; i++)
@@ -6,3 +6,9 @@ block result
             .d-flex.w-100.justify-content-between
                 p #{results[i].title}
                 small= `${results[i].price.value}  ${results[i].price.currency}`
+block script
+    script.
+        $( document ).ready(function() {
+            googleMap.setItems(!{JSON.stringify(results)});
+            googleMap.productMap();
+        });

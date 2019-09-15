@@ -1,4 +1,101 @@
 extends layout
+block header
+    doctype html
+    .bg-dark.collapse(id="navbarHeader", style)
+        .container
+            .row
+                .col-sm-8.col-md-7.py-4
+                    h4.text-white About
+                    p.text-muted
+                        |Product mapping is a web based app for browsing product in eBay. 
+                        |Not only does it help buyers to find products within their 
+                        |area but it also help sellers to know the popularity of their product 
+                        |with the help of Google Map.
+                .col-sm-4.offset-md-1.py-4
+                    h4.text-white Contact
+                    ul.list-unstyled
+                        //- to be done
+    .navbar.navbar-dark.bg-dark.box-shadow
+        .container.d-flex.justify-content-between
+            a(href="/").navbar-brand.d-flex.align-items-center
+                i.fas.fa-igloo
+                |
+                strong &nbsp;Home
+            button.navbar-toggler(
+                type="button"
+                data-toggle="collapse"
+                data-target="#navbarHeader"
+                aria-controls="navbarHeader"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            )
+                span.navbar-toggler-icon
+block content
+    .container
+        h2.text-left Welcome to Product mapping
+            img.rounded-circle.float-right(src="/icon/icon.ico" style="height: 30")
+        .card
+            //- Search form
+            .card-body.px-lg-5.pt-0
+                form(class="text-center" style="color: #757575;")
+                    .form-row
+                        //- query
+                        .col
+                            .md-form
+                                input.form-control(type="text" id="queryTxt")
+                                label Keyword
+                        //- limits
+                        .col
+                            .md-form
+                                input.form-control(type="number" id="limitTxt" min="0" onkeyup="if(this.value < 0) this.value = null;")
+                                label Limit
+                    //- price
+                    .form-row
+                        //- min
+                        .col
+                            .md-form
+                                input.form-control(type="number" id="minPrice" min="0" onkeyup="if(this.value < 0) this.value = null;")
+                                label min price (AU $)
+                        //- max
+                        .col
+                            .md-form
+                                input.form-control(type="number" id="maxPrice" min="0" onkeyup="if(this.value < 0) this.value = null;")
+                                label max price (AU $)
+
+                    //- Category
+                    .md-form
+                        select(class="mdb-select md-form" searchable="Search here.." id="categories")
+                            doctype html
+                            option(value="" disabled selected) Choose your category
+                    //- country
+                    .md-form
+                        select(class="mdb-select md-form" searchable="Search here.." id="country")
+                            doctype html
+                            option(value="" disabled selected) Choose your country
+                            option(value="AU" id="AU" selected) Australia
+                            option(value="CA" id="CA") Canada
+                            option(value="DE" id="DE") Germany
+                            option(value="ES" id="ES") Spain
+                            option(value="FR" id="FR") France
+                            option(value="GB" id="GB") Great Britain
+                            option(value="HK" id="HK") Hong Kong
+                            option(value="IT" id="IT") Italy
+                            option(value="US" id="US") USA
+                    button(class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" id="searchBtn") Search
+        .row
+            .col-md-6.mb-4
+                .card.card-cascade.narrower
+                    .view.view-cascade.gradient-card-header.blue-gradient
+                        h5.mb-0 Results
+                .card-body.card-body-cascade.text-center
+                    .list-group(style="max-height: 500px;overflow: auto;" id="resultLst")
+                        block result
+            .col-md-6.mb-4
+                .card.card-cascade.narrower
+                    .view.view-cascade.gradient-card-header.blue-gradient
+                        h5.mb-0 Google Map
+                .card-body.card-body-cascade
+                    div(class="z-depth-1-half map-container-5" style="height: 500px" id="map")
 block script
     script.
         googleMap.setCurrentLocation();

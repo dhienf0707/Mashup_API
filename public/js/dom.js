@@ -37,21 +37,21 @@ $( document ).ready(function() {
 
     // get result and update layout
     function ajaxGet() {
-        // query
-        const query = $("#queryTxt").val();
-        if (query === "") return alert("Keyword undefined");
-        const limit = $("#limitTxt").val(); // limit
-        const country = $('#country').val(); // country
-        const category = $('#categories').val();
-
-        // price
-        const minPrice = $('#minPrice').val();
-        const maxPrice = $('#maxPrice').val();
-        if (parseInt(minPrice) > parseInt(maxPrice)) return alert('Invalid price range');
+        if ($("#queryTxt").val() === '') return alert('Keyword is required');
+        if (parseInt($('#minPrice').val()) > parseInt($('#maxPrice').val())) return alert('Invalid price range');
+        const data = {
+            query: $("#queryTxt").val(),
+            limit: $("#limitTxt").val(),
+            minPrice: $('#minPrice').val(),
+            maxPrice: $('#maxPrice').val(),
+            category_id: $('#categories').val(),
+            country: $('#country').val()
+        }
         
         $.ajax({
-            type: "GET",
-            url: `/search/submit?country=${country}&query=${query}&limit=${limit}&price=price:[${minPrice}..${maxPrice}],priceCurrency:AUD&category=${category}`,
+            type: "POST",
+            url: '/search/submit',
+            data: data,
             success: function(result) {
                 $('#resultLst').empty();
                 $.each(result, function(i, item) {
@@ -69,7 +69,7 @@ $( document ).ready(function() {
                 googleMap.productMap();
             },
             error: function(err) {
-                console.log(`ERROR: ${err}`);
+                console.log(err);
             }
         });
     }    

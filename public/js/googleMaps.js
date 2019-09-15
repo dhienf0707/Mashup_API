@@ -9,7 +9,7 @@ var googleMap = (function(){
         nextItem = 0,
         items;
 
-    function initMap() {
+    const initMap = async () => {
         geocoder = new google.maps.Geocoder();
         bounds = new google.maps.LatLngBounds();
         map = new google.maps.Map(document.getElementById('map'), {
@@ -18,7 +18,7 @@ var googleMap = (function(){
         });
     }
 
-    function codeAddress(item, next) {
+    const codeAddress = async (item, next) => {
         geocoder.geocode({
             componentRestrictions: {
                 country: `${item.itemLocation.country}`,
@@ -44,7 +44,7 @@ var googleMap = (function(){
     }
 
     // set addresses
-    function setItems(itemLst) {
+    const setItems = async (itemLst) => {
         items = itemLst;
         nextItem = 0;
         clearMarkers();
@@ -55,7 +55,7 @@ var googleMap = (function(){
     // create a sleep functinon for asynchronously set markers on the map
     const sleep = interval => new Promise(resolve => setTimeout(resolve, interval));
 
-    const productMap = async params => {
+    const productMap = async () => {
         await sleep(delay);
         
         if (nextItem < items.length) {
@@ -63,10 +63,11 @@ var googleMap = (function(){
             nextItem++;
         } else {
             map.fitBounds(bounds);
+            console.log(markers.length);
         }
     };
 
-    function setCurrentLocation() {
+    const setCurrentLocation = async () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 var pos = {
@@ -85,7 +86,7 @@ var googleMap = (function(){
         }
     }
 
-    function addMarker(item, location) {
+    const addMarker = async (item, location) => {
         var content = 
         `<div id="iw-container">
             <a href= "${item.itemWebUrl}" target="_blank">
@@ -168,12 +169,12 @@ var googleMap = (function(){
         bounds.extend(marker.position);
     }
 
-    function clearMarkers() {
+    const clearMarkers = async () => {
         markers.forEach(marker => {
             marker.setMap(null);
         });
     }
-    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+    const handleLocationError = async (browserHasGeolocation, infoWindow, pos) => {
         infoWindow.setPosition(pos);
         infoWindow.setContent(browserHasGeolocation ?
                                 'Error: The Geolocation service failed.' :
