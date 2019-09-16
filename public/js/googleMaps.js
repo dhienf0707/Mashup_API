@@ -110,64 +110,8 @@ var googleMap = (function(){
             infoWindow.close();
         });
 
-<<<<<<< HEAD
-        // markers.push(marker);
-        // bounds.extend(marker.position);
-        return marker;
-    }
-
-    const getAddress = async (latlng) => {
-        var deferred = $.Deferred();
-        geocoder.geocode({'location': latlng}, function(results, status) {
-            if (status === 'OK') {
-                if (results[0]) {
-                    const country = results[0].address_components.find(function (component) {
-                        return component.types[0] == "country";
-                    });
-
-                    const political = results[0].address_components.find(function (component) {
-                        return component.types[0] == "administrative_area_level_1";
-                    });
-
-                    if (political && country) {
-                        deferred.resolve(([country.short_name, political.short_name]));
-                    } else {
-                        deferred.reject("cannot find specific country and postal code");
-                    }
-                } else {
-                  deferred.reject('location not found');
-                }
-            } else {
-               deferred.reject(status);
-            }
-        })
-        return deferred.promise();
-    }
-
-    
-
-    const getCurrentLocation = async () => {
-        var deferred = $.Deferred();
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var pos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                map.setCenter(pos);
-                map.setZoom(5);
-                deferred.resolve(pos);
-            }, function() {
-                deferred.reject('The Geolocation service failed.');
-            }, {enableHighAccuracy: true});
-        } else {
-            deferred.reject('Your browser doesn\'t support geolocation.')
-        }
-        return deferred.promise();
-=======
         markers.push(marker);
         bounds.extend(marker.position);
->>>>>>> add gps checkbox (no function yet)
     }
 
     const getItemsGPS = async (country, political, items) => {
