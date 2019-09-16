@@ -1,13 +1,15 @@
 extends index
-block result
-    each item in items
-        a(href= `${item.itemWebUrl}` target="_blank").list-group-item.list-group-item-action
-            .d-flex.w-100.justify-content-between
-                p= item.title
-                small= `${item.price.value}  ${item.price.currency}`
 block script
     script.
         $( document ).ready(function() {
-            googleMap.setItems(!{JSON.stringify(items)});
-            googleMap.productMap();
+            $('#resultLst').empty();
+            if (#{GPS}) {
+                dom.filterItemsGPS(!{JSON.stringify(items)});
+            } else  {
+                $.each(!{JSON.stringify(items)}, function(i, item) {
+                    // showing the results in the result list
+                    dom.displayItems(item);
+                });
+                googleMap.itemsMarkers(!{JSON.stringify(items)});
+            }
         });

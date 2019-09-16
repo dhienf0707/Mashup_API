@@ -85,6 +85,9 @@ block content
                             option(value="HK" id="HK") Hong Kong
                             option(value="IT" id="IT") Italy
                             option(value="US" id="US") USA
+                    .form-check
+                        input.form-check-input(type="checkbox" id="searchByGPS")
+                        label.form-check-label(for="searchByGPS") Search by GPS
                     button(class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" id="searchBtn") Search
         .row
             .col-md-6.mb-4
@@ -94,7 +97,6 @@ block content
                         h5.mb-0 Results
                 .card-body.card-body-cascade.text-center
                     .list-group(style="max-height: 500px;overflow: auto;" id="resultLst")
-                        block result
             .col-md-6.mb-4
                 .card.card-cascade.narrower
                     .view.view-cascade.gradient-card-header.blue-gradient
@@ -102,5 +104,3 @@ block content
                 .card-body.card-body-cascade
                     div(class="z-depth-1-half map-container-5" style="height: 500px" id="map")
 block script
-    script.
-        googleMap.setCurrentLocation();

@@ -3,89 +3,76 @@ var googleMap = (function(){
 	var myLatLng = {lat: -35.473469, lng: 149.012375},
         map,
         geocoder,
-        markers = [],
-        bounds,
-        delay = 0,
-        nextItem = 0,
-        items;
+        markers = new Promise((resolve, reject)=> {}),
+        delay = 0;
 
     const initMap = async () => {
         geocoder = new google.maps.Geocoder();
-        bounds = new google.maps.LatLngBounds();
         map = new google.maps.Map(document.getElementById('map'), {
             center: myLatLng,
             zoom: 5
         });
     }
 
-    const codeAddress = async (item, next) => {
+    const geocoderRequest = async(postalCode, region, latlng) => {
+        const deferred = $.Deferred();
+        if (postalCode){
+
+        }
         geocoder.geocode({
             componentRestrictions: {
-                country: `${item.itemLocation.country}`,
-                postalCode: `${item.itemLocation.postalCode}`
-          }
+                postalCode: postalCode
+            },
+            region: region,
+            location: latlng
         }, function(results, status) {
             if (status == 'OK') {
-                if (nextItem == 1) {
-                    map.setCenter(results[0].geometry.location);
-                }
-                addMarker(item, results[0].geometry.location);
+                deferred.resolve(results[0]);
             } else {
-                if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-                    nextItem--;
-                    delay++;
-                } else {
-                    console.log(status);
-                }
+                deferred.reject(status);
             }
-            next();
-        });
-        
-    }
-
-    // set addresses
-    const setItems = async (itemLst) => {
-        items = itemLst;
-        nextItem = 0;
-        clearMarkers();
-        markers = [];
-        bounds = new google.maps.LatLngBounds();
+        })
+        return deferred.promise();
     }
 
     // create a sleep functinon for asynchronously set markers on the map
     const sleep = interval => new Promise(resolve => setTimeout(resolve, interval));
 
-    const productMap = async () => {
-        await sleep(delay);
-        
-        if (nextItem < items.length) {
-            codeAddress(items[nextItem], productMap);
-            nextItem++;
-        } else {
-            map.fitBounds(bounds);
+    const itemsMarkers = async (items) => {
+        bounds = new google.maps.LatLngBounds();
+        markers.then(markers => {if (markers) clearMarkers(markers);})
+        let promises = [];
+        for (var i = 0; i < items.length; i++) {
+            await sleep(delay);
+            await geocoderRequest(items[i].itemLocation.postalCode, items[i].itemLocation.country, new google.maps.LatLng())
+                .then(async result => {
+                    const marker = addItemMarker(items[i], result.geometry.location);
+                    if (i === 0) {
+                        map.setCenter(result.geometry.location);
+                        map.setZoom(5);
+                    }
+                    promises.push(Promise.resolve(marker));
+                })
+                .catch(status => {
+                    if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+                        delay++;
+                        i--;
+                    } else {
+                        console.log(status);
+                    }
+                })
         }
-    };
-
-    const setCurrentLocation = async () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var pos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                map.setCenter(pos);
-            }, function() {
-                var infoWindow = new google.maps.InfoWindow();
-                handleLocationError(true, infoWindow, map.getCenter());
-            });
-        } else {
-            // Browser doesn't support Geolocation
-            var infoWindow = new google.maps.InfoWindow();
-            handleLocationError(false, infoWindow, map.getCenter());
-        }
+        markers = Promise.all(promises)
+            .then(markers => {
+                markers.forEach(marker => {
+                    bounds.extend(marker.position);
+                });
+                map.fitBounds(bounds);
+                return markers;
+            })
     }
 
-    const addMarker = async (item, location) => {
+    const addItemMarker = async (item, location) => {
         var content = 
         `<div id="iw-container">
             <a href= "${item.itemWebUrl}" target="_blank">
@@ -100,9 +87,13 @@ var googleMap = (function(){
             </div>
             <div class="iw-bottom-gradient"></div>
         </div>`;
+        return addMarker(content, location);
+    }
+
+    const addMarker = async (content, location) => {
         var marker = new google.maps.Marker({
             position: location,
-            map: map,
+            map: map
         });
 
         var infoWindow = new google.maps.InfoWindow({
@@ -119,73 +110,115 @@ var googleMap = (function(){
             infoWindow.close();
         });
 
-        infoWindow.addListener('domready', function() {
-            // Reference to the DIV that wraps the bottom of infowindow
-            var iwOuter = $('.gm-style-iw.gm-style-iw-c');
-        
-            /* Since this div is in a position prior to .gm-div style-iw.
-             * We use jQuery and create a iwBackground variable,
-             * and took advantage of the existing reference .gm-style-iw for the previous div with .prev().
-            */
-            var iwBackground = iwOuter.prev();
-        
-            // Removes background shadow DIV
-            iwBackground.children(':nth-child(2)').css({'display' : 'none'});
-        
-            // Removes white background DIV
-            iwBackground.children(':nth-child(4)').css({'display' : 'none'});
-        
-            // Moves the infowindow 115px to the right.
-            iwOuter.parent().parent().css({left: '115px'});
-        
-            // Moves the shadow of the arrow 76px to the left margin.
-            iwBackground.children(':nth-child(1)').attr('style', function(i,s){ return s + 'left: 76px !important;'});
-        
-            // Moves the arrow 76px to the left margin.
-            iwBackground.children(':nth-child(3)').attr('style', function(i,s){ return s + 'left: 76px !important;'});
-        
-            // Changes the desired tail shadow color.
-            iwBackground.children(':nth-child(3)').find('div').children().css({'box-shadow': 'rgba(72, 181, 233, 0.6) 0px 1px 6px', 'z-index' : '1'});
-        
-            // Reference to the div that groups the close button elements.
-            var iwCloseBtn = iwOuter.next();
-        
-            // Apply the desired effect to the close button
-            iwCloseBtn.css({opacity: '1', right: '38px', top: '3px', border: '7px solid #48b5e9', 'border-radius': '13px', 'box-shadow': '0 0 5px #3990B9'});
-        
-            // If the content of infowindow not exceed the set maximum height, then the gradient is removed.
-            if($('.iw-content').height() < 140){
-              $('.iw-bottom-gradient').css({display: 'none'});
-            }
-        
-            // The API automatically applies 0.7 opacity to the button after the mouseout event. This function reverses this event to the desired value.
-            iwCloseBtn.mouseout(function(){
-              $(this).css({opacity: '1'});
-            });
-        });
-        
-        markers.push(marker);
-        bounds.extend(marker.position);
+        // markers.push(marker);
+        // bounds.extend(marker.position);
+        return marker;
     }
 
-    const clearMarkers = async () => {
+    const getAddress = async (latlng) => {
+        var deferred = $.Deferred();
+        geocoder.geocode({'location': latlng}, function(results, status) {
+            if (status === 'OK') {
+                if (results[0]) {
+                    const country = results[0].address_components.find(function (component) {
+                        return component.types[0] == "country";
+                    });
+
+                    const political = results[0].address_components.find(function (component) {
+                        return component.types[0] == "administrative_area_level_1";
+                    });
+
+                    if (political && country) {
+                        deferred.resolve(([country.short_name, political.short_name]));
+                    } else {
+                        deferred.reject("cannot find specific country and postal code");
+                    }
+                } else {
+                  deferred.reject('location not found');
+                }
+            } else {
+               deferred.reject(status);
+            }
+        })
+        return deferred.promise();
+    }
+
+    
+
+    const getCurrentLocation = async () => {
+        var deferred = $.Deferred();
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                map.setCenter(pos);
+                map.setZoom(5);
+                deferred.resolve(pos);
+            }, function() {
+                deferred.reject('The Geolocation service failed.');
+            }, {enableHighAccuracy: true});
+        } else {
+            deferred.reject('Your browser doesn\'t support geolocation.')
+        }
+        return deferred.promise();
+    }
+
+    const getItemsGPS = async (country, political, items) => {
+        bounds = new google.maps.LatLngBounds();
+        markers.then(markers => {if (markers) clearMarkers(markers);})
+        let promises = [];
+        for (var i = 0; i < items.length; i++) {
+            await sleep(delay);
+            await googleMap.geocoderRequest(items[i].itemLocation.postalCode, items[i].itemLocation.country, new google.maps.LatLng())
+                .then(async result => {
+                    const itemCountry = result.address_components.find(function (component) {
+                        return component.types[0] == "country";
+                    });
+
+                    const itemPolitical = result.address_components.find(function (component) {
+                        return component.types[0] == "administrative_area_level_1";
+                    });
+                    if (itemCountry.short_name === country && itemPolitical.short_name === political) {
+                        const marker = addItemMarker(items[i], result.geometry.location);
+                        promises.push(Promise.resolve(marker));
+                        await dom.displayItems(items[i]);
+                    };
+                })
+                .catch(status => {
+                    if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+                        delay++;
+                        i--;
+                    } else {
+                        console.log(status);
+                    }
+                })
+        }
+        markers = Promise.all(promises)
+            .then(markers => {
+                markers.forEach(marker => {
+                    bounds.extend(marker.position);
+                });
+                map.fitBounds(bounds);
+                return markers;
+            })
+    }
+
+
+    const clearMarkers = async (markers) => {
         markers.forEach(marker => {
             marker.setMap(null);
         });
     }
-    const handleLocationError = async (browserHasGeolocation, infoWindow, pos) => {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-                                'Error: The Geolocation service failed.' :
-                                'Error: Your browser doesn\'t support geolocation.');
-        infoWindow.open(map);
-    }
 
 	return {
         init: initMap,
-        setCurrentLocation: setCurrentLocation,
-        productMap: productMap,
-        setItems: setItems,
-        clearMarkers: clearMarkers
+        geocoderRequest: geocoderRequest,
+        getCurrentLocation: getCurrentLocation,
+        getAddress: getAddress,
+        addItemMarker: addItemMarker,
+        itemsMarkers: itemsMarkers,
+        getItemsGPS: getItemsGPS
 	};
 })();

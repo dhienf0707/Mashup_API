@@ -1,3 +1,4 @@
+var dom = {};
 $( document ).ready(function() {
     // imit material select
     $('.mdb-select').materialSelect();
@@ -5,7 +6,7 @@ $( document ).ready(function() {
     // categories update handler
     $('#country').change(e => updateCategories());
 
-    function updateCategories() {
+    const updateCategories = async () => {
         const country = $('#country').val();
         $.ajax({
             type: "POST",
@@ -36,8 +37,27 @@ $( document ).ready(function() {
         updateResults();
     });
 
+    // filter results by GPS
+    dom.filterItemsGPS = async (items) => {
+        await googleMap.getCurrentLocation()
+            .then(async latlng => await googleMap.getAddress(latlng))
+            .then(async ([country, political]) => {
+                googleMap.getItemsGPS(country, political, items);
+            })
+    }
+
+    dom.displayItems = async (item) => {
+        $('#resultLst').append(
+            `<a href="${item.itemWebUrl}" class="list-group-item list-group-item-action" target="_blank">
+                <div class="d-flex w-100 justify-content-between">
+                    <p>${item.title}</p>
+                    <small>${item.price.value} ${item.price.currency}</small>
+                </div>
+            </a>`
+        );
+    }
     // get result and update layout
-    function updateResults() {
+    const updateResults = async () => {
         if ($("#queryTxt").val() === '') return alert('Keyword is required');
         if (parseInt($('#minPrice').val()) > parseInt($('#maxPrice').val())) return alert('Invalid price range');
         const data = {
@@ -53,25 +73,22 @@ $( document ).ready(function() {
             type: "POST",
             url: '/search/submit',
             data: data,
-            success: function(result) {
+            success: function(results) {
                 $('#resultLst').empty();
-                $.each(result, function(i, item) {
-                    // showing the results in the result list
-                    $('#resultLst').append(
-                        `<a href="${item.itemWebUrl}" class="list-group-item list-group-item-action" target="_blank">
-                            <div class="d-flex w-100 justify-content-between">
-                                <p>${item.title}</p>
-                                <small>${item.price.value} ${item.price.currency}</small>
-                            </div>
-                        </a>`
-                    );
-                })
-                googleMap.setItems(result);
-                googleMap.productMap();
+                // showing the results in the result list
+                if ($('#searchByGPS').prop('checked') === false) {
+                    $.each(results, function(i, item) {
+                        dom.displayItems(item);
+                    });
+                    googleMap.itemsMarkers(results);
+                }
+                else {
+                    dom.filterItemsGPS(results);
+                }
             },
             error: function(err) {
                 console.log(err);
             }
         });
-    }    
+    }
 })
