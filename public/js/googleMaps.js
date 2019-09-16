@@ -109,9 +109,7 @@ var googleMap = (function(){
         map.addListener('click', function() {
             infoWindow.close();
         });
-
-        // markers.push(marker);
-        // bounds.extend(marker.position);
+        
         return marker;
     }
 
