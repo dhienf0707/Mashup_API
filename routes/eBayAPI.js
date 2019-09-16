@@ -1,7 +1,7 @@
 const axios = require('axios');
 const qs = require('querystring');
 
-let eBayAPI = (function () {
+const eBayAPI = (function () {
     // eBay request new access token (each token only have 2 hours expire period)
     const clientId = 'DucHienN-CAB432-PRD-ddfed633a-26e8f424';
     const clientSecret = 'PRD-dfed633a1263-09d8-44ad-82c1-a30e';
@@ -37,8 +37,6 @@ let eBayAPI = (function () {
                         'Authorization': `Bearer ${tokenRes.data.access_token}`
                     }
                 }
-                // axios.get(eBayGetAPI.url, {headers: eBayGetAPI.requestHeaders})
-                //     .then(resultRes => Promise.all([tokenRes, resultRes]))
                 const result = axios.get(eBayGetItems.url, {headers: eBayGetItems.requestHeaders});
                 return result;
             })

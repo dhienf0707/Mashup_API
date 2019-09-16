@@ -6,4 +6,4 @@ WORKDIR /src
 
 ADD package.json /src
 
-RUN npm install
+RUN npm i

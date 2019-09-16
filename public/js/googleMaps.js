@@ -40,7 +40,7 @@ var googleMap = (function(){
     // return a promise container all markers
     const itemsMarkers = async (items) => {
         bounds = new google.maps.LatLngBounds();
-        markers.then(markers => {if (markers) clearMarkers(markers);})
+        markers.then(markers => {if (markers) clearMarkers(markers);}).catch(err => console.log(err))
         let promises = [];
         for (var i = 0; i < items.length; i++) {
             await sleep(delay);
@@ -49,7 +49,7 @@ var googleMap = (function(){
                     const marker = await addItemMarker(items[i], result.geometry.location);
                     if (i === 0) {
                         map.setCenter(result.geometry.location);
-                        map.setZoom(5);
+                        map.setZoom(3);
                     }
                     promises.push(Promise.resolve(marker));
                 })
@@ -70,6 +70,7 @@ var googleMap = (function(){
                 map.fitBounds(bounds);
                 return markers;
             })
+            .catch(err => console.log(err))
     }
 
     // add item marker on the map and infowindow with product info content
@@ -213,6 +214,7 @@ var googleMap = (function(){
                 map.fitBounds(bounds);
                 return markers;
             })
+            .catch(err => console.log(err))
     }
 
     // clear markers
