@@ -4,7 +4,7 @@ block script
         $( document ).ready(function() {
             $('#resultLst').empty();
             if (#{GPS}) {
-                dom.filterItemsGPS(!{JSON.stringify(items)});
+                googleMap.filterItemsGPS(!{JSON.stringify(items)});
             } else  {
                 $.each(!{JSON.stringify(items)}, function(i, item) {
                     // showing the results in the result list

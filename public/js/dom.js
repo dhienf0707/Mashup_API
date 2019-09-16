@@ -37,15 +37,6 @@ $( document ).ready(function() {
         updateResults();
     });
 
-    // filter results by GPS
-    dom.filterItemsGPS = async (items) => {
-        await googleMap.getCurrentLocation()
-            .then(async latlng => await googleMap.getAddress(latlng))
-            .then(async ([country, political]) => {
-                googleMap.getItemsGPS(country, political, items);
-            })
-    }
-
     dom.displayItems = async (item) => {
         $('#resultLst').append(
             `<a href="${item.itemWebUrl}" class="list-group-item list-group-item-action" target="_blank">
@@ -83,7 +74,7 @@ $( document ).ready(function() {
                     googleMap.itemsMarkers(results);
                 }
                 else {
-                    dom.filterItemsGPS(results);
+                    googleMap.filterItemsGPS(results);
                 }
             },
             error: function(err) {

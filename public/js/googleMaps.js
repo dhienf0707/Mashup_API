@@ -1,30 +1,30 @@
 // define global googleMap IIFE variable for initialising and keep track of the map
 var googleMap = (function(){
-	var myLatLng = {lat: -35.473469, lng: 149.012375},
-        map,
-        geocoder,
-        markers = new Promise((resolve, reject)=> {}),
-        delay = 0;
+    var map,
+    geocoder,
+    markers = new Promise((resolve, reject)=> {}),
+    delay = 0;
 
+    // create a sleep functinon for asynchronously set markers on the map
+    const sleep = interval => new Promise(resolve => setTimeout(resolve, interval));
+    
+    // initialize google map
     const initMap = async () => {
         geocoder = new google.maps.Geocoder();
         map = new google.maps.Map(document.getElementById('map'), {
-            center: myLatLng,
+            center: {lat: -35.473469, lng: 149.012375},
             zoom: 5
         });
     }
 
-    const geocoderRequest = async(postalCode, region, latlng) => {
+    // get eBay item location based on postal code and country
+    const itemLocation = async(postalCode, country) => {
         const deferred = $.Deferred();
-        if (postalCode){
-
-        }
         geocoder.geocode({
             componentRestrictions: {
-                postalCode: postalCode
+                postalCode: postalCode,
+                country: country
             },
-            region: region,
-            location: latlng
         }, function(results, status) {
             if (status == 'OK') {
                 deferred.resolve(results[0]);
@@ -35,18 +35,18 @@ var googleMap = (function(){
         return deferred.promise();
     }
 
-    // create a sleep functinon for asynchronously set markers on the map
-    const sleep = interval => new Promise(resolve => setTimeout(resolve, interval));
 
+    // Iterate through each items, add markers and infowindow on the map
+    // return a promise container all markers
     const itemsMarkers = async (items) => {
         bounds = new google.maps.LatLngBounds();
         markers.then(markers => {if (markers) clearMarkers(markers);})
         let promises = [];
         for (var i = 0; i < items.length; i++) {
             await sleep(delay);
-            await geocoderRequest(items[i].itemLocation.postalCode, items[i].itemLocation.country, new google.maps.LatLng())
+            await itemLocation(items[i].itemLocation.postalCode, items[i].itemLocation.country)
                 .then(async result => {
-                    const marker = addItemMarker(items[i], result.geometry.location);
+                    const marker = await addItemMarker(items[i], result.geometry.location);
                     if (i === 0) {
                         map.setCenter(result.geometry.location);
                         map.setZoom(5);
@@ -72,6 +72,8 @@ var googleMap = (function(){
             })
     }
 
+    // add item marker on the map and infowindow with product info content
+    // return the marker
     const addItemMarker = async (item, location) => {
         var content = 
         `<div id="iw-container">
@@ -90,6 +92,8 @@ var googleMap = (function(){
         return addMarker(content, location);
     }
 
+    // add marker and event listeners
+    // return marker
     const addMarker = async (content, location) => {
         var marker = new google.maps.Marker({
             position: location,
@@ -113,6 +117,8 @@ var googleMap = (function(){
         return marker;
     }
 
+    // get address based on latitude and longitude
+    // return promise container country name and political name
     const getAddress = async (latlng) => {
         var deferred = $.Deferred();
         geocoder.geocode({'location': latlng}, function(results, status) {
@@ -129,7 +135,7 @@ var googleMap = (function(){
                     if (political && country) {
                         deferred.resolve(([country.short_name, political.short_name]));
                     } else {
-                        deferred.reject("cannot find specific country and postal code");
+                        deferred.reject("cannot find specific country and political");
                     }
                 } else {
                   deferred.reject('location not found');
@@ -141,8 +147,8 @@ var googleMap = (function(){
         return deferred.promise();
     }
 
-    
-
+    // get current location
+    // return promise containing latitude and longitude info
     const getCurrentLocation = async () => {
         var deferred = $.Deferred();
         if (navigator.geolocation) {
@@ -163,36 +169,42 @@ var googleMap = (function(){
         return deferred.promise();
     }
 
-    const getItemsGPS = async (country, political, items) => {
+    // filter items based on current location
+    // return promise contianing all markers (for later used in clearing markers)
+    const filterItemsGPS = async (items) => {
         bounds = new google.maps.LatLngBounds();
         markers.then(markers => {if (markers) clearMarkers(markers);})
         let promises = [];
-        for (var i = 0; i < items.length; i++) {
-            await sleep(delay);
-            await googleMap.geocoderRequest(items[i].itemLocation.postalCode, items[i].itemLocation.country, new google.maps.LatLng())
-                .then(async result => {
-                    const itemCountry = result.address_components.find(function (component) {
-                        return component.types[0] == "country";
-                    });
+        await getCurrentLocation()
+            .then(async latlng => await getAddress(latlng))
+            .then(async ([country, political]) => {
+                for (var i = 0; i < items.length; i++) {
+                    await sleep(delay);
+                    await itemLocation(items[i].itemLocation.postalCode, items[i].itemLocation.country)
+                        .then(async result => {
+                            const itemCountry = result.address_components.find(function (component) {
+                                return component.types[0] == "country";
+                            });
 
-                    const itemPolitical = result.address_components.find(function (component) {
-                        return component.types[0] == "administrative_area_level_1";
-                    });
-                    if (itemCountry.short_name === country && itemPolitical.short_name === political) {
-                        const marker = addItemMarker(items[i], result.geometry.location);
-                        promises.push(Promise.resolve(marker));
-                        await dom.displayItems(items[i]);
-                    };
-                })
-                .catch(status => {
-                    if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-                        delay++;
-                        i--;
-                    } else {
-                        console.log(status);
-                    }
-                })
-        }
+                            const itemPolitical = result.address_components.find(function (component) {
+                                return component.types[0] == "administrative_area_level_1";
+                            });
+                            if (itemCountry.short_name === country && itemPolitical.short_name === political) {
+                                const marker = await addItemMarker(items[i], result.geometry.location);
+                                promises.push(Promise.resolve(marker));
+                                await dom.displayItems(items[i]);
+                            };
+                        })
+                        .catch(status => {
+                            if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+                                delay++;
+                                i--;
+                            } else {
+                                console.log(status);
+                            }
+                        })
+                }
+            })
         markers = Promise.all(promises)
             .then(markers => {
                 markers.forEach(marker => {
@@ -203,7 +215,7 @@ var googleMap = (function(){
             })
     }
 
-
+    // clear markers
     const clearMarkers = async (markers) => {
         markers.forEach(marker => {
             marker.setMap(null);
@@ -212,11 +224,10 @@ var googleMap = (function(){
 
 	return {
         init: initMap,
-        geocoderRequest: geocoderRequest,
         getCurrentLocation: getCurrentLocation,
         getAddress: getAddress,
         addItemMarker: addItemMarker,
         itemsMarkers: itemsMarkers,
-        getItemsGPS: getItemsGPS
+        filterItemsGPS: filterItemsGPS
 	};
 })();
