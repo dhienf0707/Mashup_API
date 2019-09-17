@@ -1,12 +1,13 @@
 var dom = {};
 $( document ).ready(function() {
+    
     // imit material select
     $('.mdb-select').materialSelect();
 
     // categories update handler
     $('#country').change(e => updateCategories());
 
-    const updateCategories = async () => {
+    const updateCategories = () => {
         const country = $('#country').val();
         $.ajax({
             type: "POST",
@@ -37,7 +38,7 @@ $( document ).ready(function() {
         updateResults();
     });
 
-    dom.displayItems = async (item) => {
+    dom.displayItems = (item) => {
         $('#resultLst').append(
             `<a href="${item.itemWebUrl}" class="list-group-item list-group-item-action" target="_blank">
                 <div class="d-flex w-100 justify-content-between">
@@ -48,7 +49,7 @@ $( document ).ready(function() {
         );
     }
     // get result and update layout
-    const updateResults = async () => {
+    const updateResults = () => {
         if ($("#queryTxt").val() === '') return alert('Keyword is required');
         if (parseInt($('#minPrice').val()) > parseInt($('#maxPrice').val())) return alert('Invalid price range');
         const data = {

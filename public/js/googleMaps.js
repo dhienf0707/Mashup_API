@@ -2,14 +2,14 @@
 var googleMap = (function(){
     var map,
     geocoder,
-    markers = new Promise((resolve, reject)=> {}),
+    markers = [],
     delay = 0;
 
     // create a sleep functinon for asynchronously set markers on the map
     const sleep = interval => new Promise(resolve => setTimeout(resolve, interval));
     
     // initialize google map
-    const initMap = async () => {
+    const initMap = () => {
         geocoder = new google.maps.Geocoder();
         map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: -35.473469, lng: 149.012375},
@@ -18,42 +18,45 @@ var googleMap = (function(){
     }
 
     // get eBay item location based on postal code and country
-    const itemLocation = async(postalCode, country) => {
-        const deferred = $.Deferred();
-        geocoder.geocode({
-            componentRestrictions: {
-                postalCode: postalCode,
-                country: country
-            },
-        }, function(results, status) {
-            if (status == 'OK') {
-                deferred.resolve(results[0]);
-            } else {
-                deferred.reject(status);
-            }
-        })
-        return deferred.promise();
+    const itemLocation = (postalCode, country) => {
+        return $.Deferred(function(deferred) {
+            geocoder.geocode({
+                componentRestrictions: {
+                    postalCode: postalCode
+                },
+                region: country
+            }, function(results, status) {
+                if (status == 'OK') {
+                    deferred.resolve(results[0]);
+                } else {
+                    deferred.reject(status);
+                }
+            })
+        }).promise();
     }
 
 
     // Iterate through each items, add markers and infowindow on the map
     // return a promise container all markers
-    const itemsMarkers = async (items) => {
-        bounds = new google.maps.LatLngBounds();
-        markers.then(markers => {if (markers) clearMarkers(markers);}).catch(err => console.log(err))
-        let promises = [];
+    function* itemsMarkers(items) {
+        bounds = new google.maps.LatLngBounds()
+        yield Promise.all(markers)
+            .then(markers => {
+                if (markers) {
+                    clearMarkers(markers);
+                }
+            })
         for (var i = 0; i < items.length; i++) {
-            await sleep(delay);
-            await itemLocation(items[i].itemLocation.postalCode, items[i].itemLocation.country)
-                .then(async result => {
-                    const marker = await addItemMarker(items[i], result.geometry.location);
+            yield sleep(delay);
+            yield result = itemLocation(items[i].itemLocation.postalCode, items[i].itemLocation.country)
+                .then(result => {
+                    const marker = addItemMarker(items[i], result.geometry.location);
                     if (i === 0) {
                         map.setCenter(result.geometry.location);
                         map.setZoom(3);
                     }
-                    promises.push(Promise.resolve(marker));
-                })
-                .catch(status => {
+                    markers.push(Promise.resolve(marker));
+                }, status => {
                     if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
                         delay++;
                         i--;
@@ -62,20 +65,43 @@ var googleMap = (function(){
                     }
                 })
         }
-        markers = Promise.all(promises)
+        yield Promise.all(markers)
             .then(markers => {
                 markers.forEach(marker => {
                     bounds.extend(marker.position);
                 });
                 map.fitBounds(bounds);
-                return markers;
             })
             .catch(err => console.log(err))
     }
 
+    function makeSingle(generator) {
+        let globalNonce;
+        return async function(...args) {
+          const localNonce = globalNonce = new Object();
+      
+          const iter = generator(...args);
+          let resumeValue;
+          for (;;) {
+            const n = iter.next(resumeValue);
+            if (n.done) {
+              return n.value;  // final return value of passed generator
+            }
+      
+            // whatever the generator yielded, _now_ run await on it
+            resumeValue = await n.value;
+            if (localNonce !== globalNonce) {
+              return;  // a new call was made
+            }
+            // next loop, we give resumeValue back to the generator
+          }
+        };
+      }
+
+    itemsMarkers = makeSingle(itemsMarkers);
     // add item marker on the map and infowindow with product info content
     // return the marker
-    const addItemMarker = async (item, location) => {
+    const addItemMarker = (item, location) => {
         var content = 
         `<div id="iw-container">
             <a href= "${item.itemWebUrl}" target="_blank">
@@ -95,7 +121,7 @@ var googleMap = (function(){
 
     // add marker and event listeners
     // return marker
-    const addMarker = async (content, location) => {
+    const addMarker = (content, location) => {
         var marker = new google.maps.Marker({
             position: location,
             map: map
@@ -120,7 +146,7 @@ var googleMap = (function(){
 
     // get address based on latitude and longitude
     // return promise container country name and political name
-    const getAddress = async (latlng) => {
+    const getAddress = (latlng) => {
         var deferred = $.Deferred();
         geocoder.geocode({'location': latlng}, function(results, status) {
             if (status === 'OK') {
@@ -150,7 +176,7 @@ var googleMap = (function(){
 
     // get current location
     // return promise containing latitude and longitude info
-    const getCurrentLocation = async () => {
+    const getCurrentLocation = () => {
         var deferred = $.Deferred();
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
@@ -170,55 +196,56 @@ var googleMap = (function(){
         return deferred.promise();
     }
 
-    // filter items based on current location
-    // return promise contianing all markers (for later used in clearing markers)
-    const filterItemsGPS = async (items) => {
+    function* filterItemsGPS(items) {
         bounds = new google.maps.LatLngBounds();
-        markers.then(markers => {if (markers) clearMarkers(markers);})
-        let promises = [];
-        await getCurrentLocation()
-            .then(async latlng => await getAddress(latlng))
-            .then(async ([country, political]) => {
-                for (var i = 0; i < items.length; i++) {
-                    await sleep(delay);
-                    await itemLocation(items[i].itemLocation.postalCode, items[i].itemLocation.country)
-                        .then(async result => {
-                            const itemCountry = result.address_components.find(function (component) {
-                                return component.types[0] == "country";
-                            });
-
-                            const itemPolitical = result.address_components.find(function (component) {
-                                return component.types[0] == "administrative_area_level_1";
-                            });
-                            if (itemCountry.short_name === country && itemPolitical.short_name === political) {
-                                const marker = await addItemMarker(items[i], result.geometry.location);
-                                promises.push(Promise.resolve(marker));
-                                await dom.displayItems(items[i]);
-                            };
-                        })
-                        .catch(status => {
-                            if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-                                delay++;
-                                i--;
-                            } else {
-                                console.log(status);
-                            }
-                        })
+        yield Promise.all(markers)
+            .then(markers => {
+                if (markers) {
+                    clearMarkers(markers)
                 }
             })
-        markers = Promise.all(promises)
+        const latlng = yield getCurrentLocation();
+        const [country, political] = yield getAddress(latlng);
+        for (var i = 0; i < items.length; i++) {
+            yield sleep(delay);
+            yield itemLocation(items[i].itemLocation.postalCode, items[i].itemLocation.country)
+                .then(result => {
+                    const itemCountry = result.address_components.find(function (component) {
+                        return component.types[0] == "country";
+                    });
+
+                    const itemPolitical = result.address_components.find(function (component) {
+                        return component.types[0] == "administrative_area_level_1";
+                    });
+                    if (itemCountry.short_name === country && itemPolitical.short_name === political) {
+                        const marker = addItemMarker(items[i], result.geometry.location);
+                        markers.push(Promise.resolve(marker));
+                        dom.displayItems(items[i]);
+                    };
+                })
+                .catch(status => {
+                    if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+                        delay++;
+                        i--;
+                    } else {
+                        console.log(status);
+                    }
+                })
+        }
+
+        yield Promise.all(markers)
             .then(markers => {
                 markers.forEach(marker => {
                     bounds.extend(marker.position);
                 });
                 map.fitBounds(bounds);
-                return markers;
             })
             .catch(err => console.log(err))
     }
-
+    
+    filterItemsGPS = makeSingle(filterItemsGPS);
     // clear markers
-    const clearMarkers = async (markers) => {
+    const clearMarkers = (markers) => {
         markers.forEach(marker => {
             marker.setMap(null);
         });
@@ -230,6 +257,7 @@ var googleMap = (function(){
         getAddress: getAddress,
         addItemMarker: addItemMarker,
         itemsMarkers: itemsMarkers,
+        makeSingle: makeSingle,
         filterItemsGPS: filterItemsGPS
 	};
 })();
