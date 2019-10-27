@@ -1,5 +1,5 @@
 # Set Node as working environment
-FROM node:boron
+FROM node:erbium
 
 # Install nodemon globally
 RUN npm i nodemon -g
