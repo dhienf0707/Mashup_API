@@ -31,9 +31,13 @@ app.use('/search', search);
 app.use('/categories', categories);
 
 // PORT
-const port = process.env.PORT || 3000;
+const httpPort = 3000;
+const httpsPort = 3443;
 
 // create sever
-const server = https.createServer(credentials, app);
-server.listen(port);
+const httpServer = http.createServer(app);
+httpServer.listen(httpPort);
+
+const httpsServer = https.createServer(credentials, app);
+httpsServer.listen(httpsPort);
 reload(app);
