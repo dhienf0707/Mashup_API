@@ -15,6 +15,7 @@ RUN npm i
 
 # Expose appropriate ports
 EXPOSE 3000
+EXPOSE 3443
 
 # run command
 CMD ["npm", "start"]
