@@ -8,6 +8,7 @@ const fs = require('fs');
 const indexRouter = require('./routes/index');
 const search = require('./routes/search');
 const categories = require('./routes/categories');
+const responseTime = require('response-time');
 
 // HTTPS server
 const privateKey = fs.readFileSync('./sslcert/domain-key.txt', 'utf8');
@@ -20,11 +21,13 @@ const app = express();
 app.set('view engine', 'pug');
 app.set('views', './views');
 
+app.use(responseTime());
 app.use(helmet());
 app.use(morngan('tiny'));
 app.use(express.json()); // parse json req
 app.use(express.urlencoded({ extended: true })); // url endcode key:value
 app.use(express.static(__dirname + '/public')); // static files
+
 
 app.use('/', indexRouter);
 app.use('/search', search);
