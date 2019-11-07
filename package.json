@@ -19,7 +19,9 @@
     "morgan": "^1.9.1",
     "pug": "^2.0.4",
     "querystring": "^0.2.0",
-    "reload": "^3.0.1"
+    "redis": "^2.8.0",
+    "reload": "^3.0.1",
+    "response-time": "^2.3.2"
   },
   "repository": {
     "type": "git",
