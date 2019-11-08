@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const eBayAPI = require('./eBayAPI');
 const redis = require('redis');
+const { BlobServiceClient } = require('@azure/storage-blob');
 
 // create and connect redis client to local instance.
 const redisHostName = process.env.REDISCACHEHOSTNAME || 'ebay-cache.redis.cache.windows.net';
@@ -12,6 +13,28 @@ const client = redis.createClient(6380, redisHostName, {auth_pass: redisCacheKey
 client.on('error', (err) => {
     console.log("Error " + err);
 });
+
+// Set up azure blobs
+// Azure connectstring
+CONNECT_STR = process.env.CONNECT_STR || 'DefaultEndpointsProtocol=https;AccountName=ebayitems;AccountKey=4Uf2oudGKviDXYVAC+vzfeR9MuI3l1x01axQP0TLb1THIX5oq/kayChnY7JZOXCncWdY9Uu9Tsthf+mXbfHT8Q==;EndpointSuffix=core.windows.net';
+
+// Create the BlobServiceClient object which will be used to create a container client
+const blobServiceClient = new BlobServiceClient.fromConnectionString(CONNECT_STR);
+
+// Create a unique name for the container
+const containerName = 'ebayitemscontainer';
+
+console.log('\nCreating container...');
+console.log('\t', containerName);
+
+// Get a reference to a container
+const containerClient = blobServiceClient.getContainerClient(containerName);
+
+// Create the container
+containerClient.create()
+    .then(result => console.log(`Container "${containerName}" successfully created at ${result.date}`))
+    .catch(err => console.log(err.details.errorCode))
+
 
 router.get('/full', (req, res) => {
     const query = req.query;
@@ -30,28 +53,57 @@ router.get('/full', (req, res) => {
 router.post('/submit', (req, res) => {
     let query = req.body;
     const url = createUrl(query); // build eBay url and remove any whitespace in query
-    redisKey = `eBay: ${query.query} / ${query.limit} / ${query.minPrice} / ${query.maxPrice} / ${query.category_id} / ${query.GPS}`;
-    console.log(redisKey);
+    key = `eBay - ${query.query} - ${query.limit} - ${query.minPrice} - ${query.maxPrice} - ${query.category_id} - ${query.GPS}`;
+    const blockBlobClient = containerClient.getBlockBlobClient(key); // get block blob client
+    console.log(key);
     console.log(url);
 
     // try fetching results from Redis first
-    return client.get(redisKey, (err, result) => {
+    client.get(key, async (err, result) => {
         if (result) {
             resultJSON = JSON.parse(result);
-            return res.status(200).json(resultJSON);
+            res.status(200).json(resultJSON);
         } else { // key not exist in redis
-            return eBayAPI.getItems(url, query.country)
-                .then((items) => {
-                    // res.render('search', {items})
-                    // Save the Wikipedia API response in Redis store
-                    client.setex(redisKey, 3600, JSON.stringify({ source: 'Redis Cache', ...items }));
-                    // Send JSON response to client
-                    res.status(200).json({ source: 'eBay API', ...items, });
-                })
-                .catch(err => res.json(err)) 
+            blockBlobClient.download() // try to fetch from Azure blob
+                .then(AzureResponse => streamToString(AzureResponse.readableStreamBody))
+                .then(data => res.send(JSON.parse(data)))
+                .catch(err => {
+                    // if blob not exist serve from eBay API and store in both redis cache and azure blob
+                    if (err.details.errorCode === 'BlobNotFound') {
+                        eBayAPI.getItems(url, query.country)
+                            .then(items => {
+                                // save response in Redis store
+                                client.setex(key, 3600, JSON.stringify({ source: 'Redis Cache', ...items }));
+
+                                // save response in Azure blob
+                                const blobData = JSON.stringify({ source: 'Azure blob', ...items });
+                                blockBlobClient.upload(blobData, blobData.length);
+
+                                // send JSON response back to client
+                                res.status(200).json({ source: 'eBay API', ...items, });
+                            })
+                            .catch(err => res.send(err.message))
+                    }
+                    else {
+                        res.send(err.details.errorCode);
+                    }
+                });
         }
     });
 });
+
+function streamToString(readableStream) {
+    return new Promise((resolve, reject) => {
+      const chunks = [];
+      readableStream.on("data", (data) => {
+        chunks.push(data.toString());
+      });
+      readableStream.on("end", () => {
+        resolve(chunks.join(""));
+      });
+      readableStream.on("error", reject);
+    });
+}
 
 function createUrl(query) {
     ['query', 'limit', 'minPrice', 'maxPrice', 'category_id', 'GPS'].forEach(element => {
