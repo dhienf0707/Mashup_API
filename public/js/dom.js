@@ -1,6 +1,6 @@
 var dom = {};
-$( document ).ready(function() {
-    
+$(document).ready(function () {
+
     // imit material select
     $('.mdb-select').materialSelect();
 
@@ -12,20 +12,20 @@ $( document ).ready(function() {
         $.ajax({
             type: "POST",
             url: `/categories/submit`,
-            data: {country: country},
-            success: function(result) {
+            data: { country: country },
+            success: function (result) {
                 $('#categories').empty();
                 $('#categories').append(
                     `<option value="" disabled selected>Choose your category</option>`
                 );
-                $.each(result, function(i, category) {
+                $.each(result, function (i, category) {
                     // update categories
                     $('#categories').append(
                         `<option value="${category.category.categoryId}">${category.category.categoryName}</option>`
                     )
                 });
             },
-            error: function(err) {
+            error: function (err) {
                 console.log(`ERROR: ${err}`);
             }
         });
@@ -60,17 +60,19 @@ $( document ).ready(function() {
             category_id: $('#categories').val(),
             country: $('#country').val()
         }
-        
+
         $.ajax({
             type: "POST",
             url: '/search/submit',
             data: data,
-            success: function(results) {
+            success: function (results) {
                 $('#resultLst').empty();
                 // showing the results in the result list
                 if ($('#searchByGPS').prop('checked') === false) {
-                    $.each(results, function(i, item) {
-                        dom.displayItems(item);
+                    $.each(results, function (i, item) {
+                        if (i !== "source") {
+                            dom.displayItems(item);
+                        }
                     });
                     googleMap.itemsMarkers(results);
                 }
@@ -78,7 +80,7 @@ $( document ).ready(function() {
                     googleMap.filterItemsGPS(results);
                 }
             },
-            error: function(err) {
+            error: function (err) {
                 console.log(err);
             }
         });

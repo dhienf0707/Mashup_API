@@ -6,8 +6,8 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 
 // create and connect redis client to local instance.
 const redisHostName = process.env.REDISCACHEHOSTNAME || 'ebay-cache.redis.cache.windows.net';
-const redisCacheKey = process.env.REDISCACHEKEY || 'AYf7EQmyZqgDZ84WyV6+O3tJ7+Gp20Jcgmtqi3LJ6n8=';
-const client = redis.createClient(6380, redisHostName, {auth_pass: redisCacheKey, tls: {servername: redisHostName}});
+const redisCacheKey = process.env.REDISCACHEKEY || 'aFhGJ3hRSFiXsCL8PznkDZKv1lTYE1Aa6AzCaB5fywA=';
+const client = redis.createClient(6380, redisHostName, { auth_pass: redisCacheKey, tls: { servername: redisHostName } });
 
 // Print redis errors to the console
 client.on('error', (err) => {
@@ -16,10 +16,10 @@ client.on('error', (err) => {
 
 // Set up azure blobs
 // Azure connectstring
-CONNECT_STR = process.env.CONNECT_STR || 'DefaultEndpointsProtocol=https;AccountName=ebayitems;AccountKey=4Uf2oudGKviDXYVAC+vzfeR9MuI3l1x01axQP0TLb1THIX5oq/kayChnY7JZOXCncWdY9Uu9Tsthf+mXbfHT8Q==;EndpointSuffix=core.windows.net';
+CONNECT_STR = process.env.CONNECT_STR || 'DefaultEndpointsProtocol=https;AccountName=ebayitems;AccountKey=kGuUj7hrOn+/rWyyB45AoqLJibhPsbZOQDwTAgSaqVtn0IakxyhJV6ziGJjFQKj2/dtKSJcaOxyd+AStNSCqDQ==;EndpointSuffix=core.windows.net';
 
 // Create the BlobServiceClient object which will be used to create a container client
-const blobServiceClient = new BlobServiceClient.fromConnectionString(CONNECT_STR);
+const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECT_STR);
 
 // Create a unique name for the container
 const containerName = 'ebayitemscontainer';
@@ -33,7 +33,7 @@ const containerClient = blobServiceClient.getContainerClient(containerName);
 // Create the container
 containerClient.create()
     .then(result => console.log(`Container "${containerName}" successfully created at ${result.date}`))
-    .catch(err => console.log(err.details.errorCode))
+    .catch(err => console.log(err.details))
 
 
 router.get('/full', (req, res) => {
@@ -44,11 +44,50 @@ router.get('/full', (req, res) => {
     if (query.GPS === '') query.GPS = false;
     eBayAPI.getItems(url, query.country)
         .then((items) => {
-            res.render('search', {items: items, GPS: query.GPS});
+            res.render('search', { items: items, GPS: query.GPS });
             // res.send(items);
         })
         .catch(err => console.log(err))
 });
+
+router.post('/location', (req, res) => {
+    let itemId = req.body.itemId
+    const url = `https://api.ebay.com/buy/browse/v1/item/${itemId}`
+    key = `eBay - ${itemId}`
+    const blockBlobClient = containerClient.getBlockBlobClient(key); // get block blob client
+
+    client.get(key, async (err, result) => {
+        if (result) {
+            resultJSON = JSON.parse(result);
+            res.status(200).json(resultJSON);
+        } else { // key not exist in redis
+            blockBlobClient.download() // try to fetch from Azure blob
+                .then(AzureResponse => streamToString(AzureResponse.readableStreamBody))
+                .then(data => res.send(JSON.parse(data)))
+                .catch(err => {
+                    // if blob not exist serve from eBay API and store in both redis cache and azure blob
+                    if (err.details.errorCode === 'BlobNotFound') {
+                        eBayAPI.getItem(url)
+                            .then(location => {
+                                // save response in Redis store
+                                client.setex(key, 3600, JSON.stringify({ source: 'Redis Cache', ...location }));
+
+                                // save response in Azure blob
+                                const blobData = JSON.stringify({ source: 'Azure blob', ...location });
+                                blockBlobClient.upload(blobData, blobData.length);
+
+                                // send JSON response back to client
+                                res.status(200).json({ source: 'eBay API', ...location, });
+                            })
+                            .catch(err => res.send(err.message))
+                    }
+                    else {
+                        res.send(err.details.errorCode);
+                    }
+                });
+        }
+    });
+})
 
 router.post('/submit', (req, res) => {
     let query = req.body;
@@ -64,6 +103,41 @@ router.post('/submit', (req, res) => {
             resultJSON = JSON.parse(result);
             res.status(200).json(resultJSON);
         } else { // key not exist in redis
+            // try { // try to fetch from Azure blob
+            //     // Download the blob
+            //     const downloadBlockBlobResponse = await blockBlobClient.download();
+
+            //     // Convert the response body into a string (or Buffer)
+            //     const downloaded = await streamToBuffer(downloadBlockBlobResponse.readableStreamBody);
+
+            //     // convert the downloaded buffer to string
+            //     const data = downloaded.toString()
+
+            //     // send the response back in json format
+            //     res.send(JSON.parse(data))
+            // } catch (err) {
+            //     console.log("ERRRORRRRRRR")
+            //     console.log(err)
+            //     // if blob not exist serve from eBay API and store in both redis cache and azure blob
+            //     if (err.details.errorCode === 'BlobNotFound') {
+            //         eBayAPI.getItems(url, query.country)
+            //             .then(items => {
+            //                 // save response in Redis store
+            //                 client.setex(key, 3600, JSON.stringify({ source: 'Redis Cache', ...items }));
+
+            //                 // save response in Azure blob
+            //                 const blobData = JSON.stringify({ source: 'Azure blob', ...items });
+            //                 blockBlobClient.upload(blobData, blobData.length);
+
+            //                 // send JSON response back to client
+            //                 res.status(200).json({ source: 'eBay API', ...items, });
+            //             })
+            //             .catch(err => res.send(err.message))
+            //     }
+            //     else {
+            //         res.send(err.details.errorCode);
+            //     }
+            // }
             blockBlobClient.download() // try to fetch from Azure blob
                 .then(AzureResponse => streamToString(AzureResponse.readableStreamBody))
                 .then(data => res.send(JSON.parse(data)))
@@ -94,15 +168,24 @@ router.post('/submit', (req, res) => {
 
 function streamToString(readableStream) {
     return new Promise((resolve, reject) => {
-      const chunks = [];
-      readableStream.on("data", (data) => {
-        chunks.push(data.toString());
-      });
-      readableStream.on("end", () => {
-        resolve(chunks.join(""));
-      });
-      readableStream.on("error", reject);
+        const chunks = [];
+        readableStream.on("data", (data) => {
+            chunks.push(data.toString());
+        });
+        readableStream.on("end", () => {
+            resolve(chunks.join(""));
+        });
+        readableStream.on("error", reject);
     });
+}
+
+// Helper function to convert stream to buffer
+async function streamToBuffer(readableStream) {
+    const chunks = [];
+    for await (const chunk of readableStream) {
+        chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
 }
 
 function createUrl(query) {
