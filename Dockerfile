@@ -7,3 +7,6 @@ WORKDIR /src
 ADD package.json /src
 
 RUN npm i
+
+# Run the app when the container launches
+CMD ["npm", "start"]
