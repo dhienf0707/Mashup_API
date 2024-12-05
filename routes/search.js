@@ -19,7 +19,6 @@ client.on('error', (err) => {
 // Set up azure blobs
 // Azure connectstring
 CONNECT_STR = process.env.CONNECT_STR;
-console.log(CONNECT_STR)
 
 // Create the BlobServiceClient object which will be used to create a container client
 const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECT_STR);
