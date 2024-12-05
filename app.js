@@ -31,8 +31,18 @@ app.use(express.json()); // parse json req
 app.use(express.urlencoded({ extended: true })); // url endcode key:value
 app.use(express.static(__dirname + '/public')); // static files
 
+// only allow google map api request from localhost
+const allowLocalhostOnly = (req, res, next) => {
+    const allowedIPs = ['127.0.0.1', '::1', 'localhost']; // Allow localhost IPs
+    if (allowedIPs.includes(req.ip)) {
+        next(); // Allow the request
+    } else {
+        res.status(403).send('Access denied: Only localhost requests are allowed.');
+    }
+};
+
 // return google map api response to frontend
-app.get('/maps/api', async (req, res) => {
+app.get('/maps/api', allowLocalhostOnly, async (req, res) => {
     const { query } = req; // Pass any query parameters
     const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Load the API key from an environment variable
     try {
