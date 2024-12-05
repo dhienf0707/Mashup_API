@@ -2,7 +2,7 @@
   "name": "product_mapping",
   "version": "1.0.0",
   "description": "eBay and Google map API mapping",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start": "nodemon -L app.js -e js,pug"
   },
