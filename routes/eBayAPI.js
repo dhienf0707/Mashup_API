@@ -1,11 +1,12 @@
 const axios = require('axios');
 const { get } = require('express/lib/response');
 const qs = require('querystring');
+require('dotenv').config();
 
 const eBayAPI = (function () {
     // eBay request new access token (each token only have 2 hours expire period)
-    const clientId = 'DucHienN-mashupap-PRD-a89748a9b-59ba30be';
-    const clientSecret = 'PRD-89748a9ba8f2-ece8-4399-9342-6c94';
+    const clientId = process.env.CLIENTID;
+    const clientSecret = process.env.CLIENTSECRET;
     const base64Credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     function getToken() {
@@ -17,7 +18,7 @@ const eBayAPI = (function () {
             },
             requestBody: {
                 grant_type: 'refresh_token',
-                refresh_token: 'v^1.1#i^1#r^1#f^0#p^3#I^3#t^Ul4xMF8xMTo2MkU2RUUwMUI0NTEzNTJDRTE4QTdEOEJEQkI3N0M5QV8wXzEjRV4yNjA=',
+                refresh_token: process.env.REFRESH_TOKEN,
                 scope: 'https://api.ebay.com/oauth/api_scope https://api.ebay.com/oauth/api_scope/sell.marketing.readonly https://api.ebay.com/oauth/api_scope/sell.marketing https://api.ebay.com/oauth/api_scope/sell.inventory.readonly https://api.ebay.com/oauth/api_scope/sell.inventory https://api.ebay.com/oauth/api_scope/sell.account.readonly https://api.ebay.com/oauth/api_scope/sell.account https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly https://api.ebay.com/oauth/api_scope/sell.fulfillment https://api.ebay.com/oauth/api_scope/sell.analytics.readonly https://api.ebay.com/oauth/api_scope/sell.finances'
             }
         }

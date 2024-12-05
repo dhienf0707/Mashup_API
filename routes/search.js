@@ -3,10 +3,12 @@ const router = express.Router();
 const eBayAPI = require('./eBayAPI');
 const redis = require('redis');
 const { BlobServiceClient } = require('@azure/storage-blob');
+require('dotenv').config();
+
 
 // create and connect redis client to local instance.
-const redisHostName = process.env.REDISCACHEHOSTNAME || 'ebay-cache.redis.cache.windows.net';
-const redisCacheKey = process.env.REDISCACHEKEY || 'aFhGJ3hRSFiXsCL8PznkDZKv1lTYE1Aa6AzCaB5fywA=';
+const redisHostName = process.env.REDISCACHEHOSTNAME;
+const redisCacheKey = process.env.REDISCACHEKEY;
 const client = redis.createClient(6380, redisHostName, { auth_pass: redisCacheKey, tls: { servername: redisHostName } });
 
 // Print redis errors to the console
@@ -16,7 +18,8 @@ client.on('error', (err) => {
 
 // Set up azure blobs
 // Azure connectstring
-CONNECT_STR = process.env.CONNECT_STR || 'DefaultEndpointsProtocol=https;AccountName=ebayitems;AccountKey=kGuUj7hrOn+/rWyyB45AoqLJibhPsbZOQDwTAgSaqVtn0IakxyhJV6ziGJjFQKj2/dtKSJcaOxyd+AStNSCqDQ==;EndpointSuffix=core.windows.net';
+CONNECT_STR = process.env.CONNECT_STR;
+console.log(CONNECT_STR)
 
 // Create the BlobServiceClient object which will be used to create a container client
 const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECT_STR);

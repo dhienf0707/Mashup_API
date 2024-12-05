@@ -9,6 +9,9 @@ const indexRouter = require('./routes/index');
 const search = require('./routes/search');
 const categories = require('./routes/categories');
 const responseTime = require('response-time');
+const axios = require('axios');
+require('dotenv').config();
+
 
 // HTTPS server
 const privateKey = fs.readFileSync('./sslcert/domain-key.txt', 'utf8');
@@ -28,6 +31,28 @@ app.use(express.json()); // parse json req
 app.use(express.urlencoded({ extended: true })); // url endcode key:value
 app.use(express.static(__dirname + '/public')); // static files
 
+// return google map api response to frontend
+app.get('/maps/api', async (req, res) => {
+    const { query } = req; // Pass any query parameters
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Load the API key from an environment variable
+    try {
+         // Forward the request to the Google Maps API
+         const response = await axios.get('https://maps.googleapis.com/maps/api/js', {
+            params: {
+                ...query,
+                key: apiKey,
+            },
+            responseType: 'text', // Ensure it's treated as plain text
+        });
+
+        // Set correct headers for JavaScript
+        res.set('Content-Type', 'application/javascript');
+        res.send(response.data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Failed to fetch Google Maps API');
+    }
+});
 
 app.use('/', indexRouter);
 app.use('/search', search);
