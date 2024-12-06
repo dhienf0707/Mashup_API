@@ -10,13 +10,14 @@ const search = require('./routes/search');
 const categories = require('./routes/categories');
 const responseTime = require('response-time');
 const axios = require('axios');
+const path = require('path');
 require('dotenv').config();
 
 // app settings
 const app = express();
 
 app.set('view engine', 'pug');
-app.set('views', './views');
+app.set('views', path.join(__dirname, '/views'));
 
 app.use(responseTime());
 app.use(helmet());
@@ -28,7 +29,7 @@ app.use(express.static(__dirname + '/public')); // static files
 // only allow google map api request from localhost
 const allowLocalhostOnly = (req, res, next) => {
     const referer = req.get('Referer') // Check the Referer header
-    const isLocal = referer ? referer.startsWith('http://localhost') || referer.startsWith('https://mashup-api.onrender.com/') : false
+    const isLocal = referer ? referer.startsWith('http://localhost') || referer.startsWith('https://mashup-api.onrender.com/' || referer.startsWith('https://mashup-api.vercel.app/')) : false
     if (isLocal) {
         next(); // Allow the request
     } else {
