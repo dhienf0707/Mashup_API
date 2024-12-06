@@ -29,7 +29,7 @@ app.use(express.static(__dirname + '/public')); // static files
 // only allow google map api request from localhost
 const allowLocalhostOnly = (req, res, next) => {
     const referer = req.get('Referer') // Check the Referer header
-    const isLocal = referer ? referer.startsWith('http://localhost') || referer.startsWith('https://mashup-api.onrender.com/' || referer.startsWith('https://mashup-api.vercel.app/')) : false
+    const isLocal = referer ? (referer.startsWith('http://localhost') || referer.startsWith('https://mashup-api.onrender.com/') || referer.endsWith('jerrys-projects-a37e323e.vercel.app/')) : false
     if (isLocal) {
         next(); // Allow the request
     } else {
