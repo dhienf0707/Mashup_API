@@ -43,6 +43,7 @@ const allowLocalhostOnly = (req, res, next) => {
 
 // return google map api response to frontend
 app.get('/maps/api', allowLocalhostOnly, async (req, res) => {
+    console.log(req.ip)
     const { query } = req; // Pass any query parameters
     const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Load the API key from an environment variable
     try {
