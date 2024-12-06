@@ -18,7 +18,7 @@ client.on('error', (err) => {
 
 // Set up azure blobs
 // Azure connectstring
-CONNECT_STR = process.env.CONNECT_STR;
+const CONNECT_STR = process.env.CONNECT_STR;
 
 // Create the BlobServiceClient object which will be used to create a container client
 const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECT_STR);
@@ -55,7 +55,7 @@ router.get('/full', (req, res) => {
 router.post('/location', (req, res) => {
     let itemId = req.body.itemId
     const url = `https://api.ebay.com/buy/browse/v1/item/${itemId}`
-    key = `eBay - ${itemId}`
+    const key = `eBay - ${itemId}`
     const blockBlobClient = containerClient.getBlockBlobClient(key); // get block blob client
 
     client.get(key, async (err, result) => {
@@ -94,7 +94,7 @@ router.post('/location', (req, res) => {
 router.post('/submit', (req, res) => {
     let query = req.body;
     const url = createUrl(query); // build eBay url and remove any whitespace in query
-    key = `eBay - ${query.query} - ${query.limit} - ${query.minPrice} - ${query.maxPrice} - ${query.category_id} - ${query.GPS}`;
+    const key = `eBay - ${query.query} - ${query.limit} - ${query.minPrice} - ${query.maxPrice} - ${query.category_id} - ${query.GPS}`;
     const blockBlobClient = containerClient.getBlockBlobClient(key); // get block blob client
     console.log(key);
     console.log(url);
