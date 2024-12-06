@@ -34,18 +34,16 @@ app.use(express.static(__dirname + '/public')); // static files
 // only allow google map api request from localhost
 const allowLocalhostOnly = (req, res, next) => {
     const referer = req.get('Referer'); // Check the Referer header
-    console.log(referer)
-    const allowedIPs = ['127.0.0.1', '::1', 'localhost']; // Allow localhost IPs
-    if (allowedIPs.includes(req.ip)) {
+    const isLocal = referer && referer.startsWith('http://localhost') || referer.startsWith('https://mashup-api.onrender.com/');
+    if (isLocal) {
         next(); // Allow the request
     } else {
-        res.status(403).send('Access denied: Only localhost requests are allowed.');
+        res.status(403).json({ error: 'Forbidden: Unauthorized access to /maps/api' });
     }
 };
 
 // return google map api response to frontend
 app.get('/maps/api', allowLocalhostOnly, async (req, res) => {
-    console.log(req.ip)
     const { query } = req; // Pass any query parameters
     const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Load the API key from an environment variable
     try {
