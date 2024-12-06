@@ -33,6 +33,8 @@ app.use(express.static(__dirname + '/public')); // static files
 
 // only allow google map api request from localhost
 const allowLocalhostOnly = (req, res, next) => {
+    const referer = req.get('Referer'); // Check the Referer header
+    console.log(referer)
     const allowedIPs = ['127.0.0.1', '::1', 'localhost']; // Allow localhost IPs
     if (allowedIPs.includes(req.ip)) {
         next(); // Allow the request
